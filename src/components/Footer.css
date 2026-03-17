@@ -1,0 +1,63 @@
+/* 附加資訊區樣式 */
+.footer {
+  background: var(--text-dark);
+  color: var(--white);
+}
+
+.footer-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 24px 32px;
+}
+
+.footer-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.footer-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footer-info-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.footer-info-value {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.footer-copyright {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 平板 */
+@media (max-width: 1024px) {
+  .footer-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 手機 */
+@media (max-width: 768px) {
+  .footer-container {
+    padding: 40px 20px 24px;
+  }
+
+  .footer-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}

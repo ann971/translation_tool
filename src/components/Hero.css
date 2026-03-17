@@ -1,0 +1,104 @@
+/* Hero 區塊樣式 */
+.hero {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.hero-icon svg {
+  display: block;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+}
+
+.hero-info {
+  flex: 1;
+}
+
+.hero-title {
+  font-size: 36px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.hero-description {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.hero-download-btn {
+  display: inline-block;
+  background: var(--primary-dark);
+  color: var(--white);
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.hero-download-btn:hover {
+  background: #1557B0;
+  box-shadow: var(--shadow-lg);
+}
+
+.hero-meta {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hero-meta-item {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.hero-meta-divider {
+  color: var(--border);
+}
+
+/* 平板 */
+@media (max-width: 1024px) {
+  .hero-container {
+    padding: 48px 24px;
+    gap: 32px;
+  }
+
+  .hero-title {
+    font-size: 30px;
+  }
+}
+
+/* 手機 */
+@media (max-width: 768px) {
+  .hero-container {
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 24px;
+  }
+
+  .hero-meta {
+    justify-content: center;
+  }
+
+  .hero-title {
+    font-size: 28px;
+  }
+
+  .hero-description {
+    font-size: 16px;
+  }
+}
