@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DeepL 翻譯設定</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font: 14px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', Arial, sans-serif;
+        background: #f5f6f8;
+        color: #1a1a1a;
+        min-height: 100vh;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 48px 20px;
+      }
+
+      .container { width: 100%; max-width: 520px; }
+
+      /* ---- Header ---- */
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 28px;
+      }
+      .header-icon {
+        width: 48px; height: 48px;
+        background: linear-gradient(135deg, #0582FF, #49b4e9);
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 22px; font-weight: 700;
+        flex-shrink: 0;
+      }
+      .header-text h1 { font-size: 20px; font-weight: 700; line-height: 1.3; }
+      .header-text p { font-size: 13px; color: #888; }
+
+      /* ---- Card ---- */
+      .card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,.06);
+        box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+        overflow: hidden;
+      }
+      .card + .card { margin-top: 16px; }
+
+      .card-title {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: #999;
+        padding: 20px 24px 0;
+      }
+
+      /* ---- Field rows ---- */
+      .field {
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 1px solid rgba(0,0,0,.05);
+      }
+      .field:last-child { border-bottom: none; }
+
+      .field-icon {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 17px;
+        flex-shrink: 0;
+      }
+      .field-icon.key  { background: #fff3e0; }
+      .field-icon.lang { background: #e3f2fd; }
+      .field-icon.plan { background: #f3e5f5; }
+
+      .field-body { flex: 1; min-width: 0; }
+      .field-label {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .field-hint { font-size: 12px; color: #999; line-height: 1.4; }
+
+      .field-control { flex-shrink: 0; }
+
+      /* ---- Input & Select ---- */
+      input[type="password"],
+      select {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: inherit;
+        background: #fafafa;
+        color: #1a1a1a;
+        transition: border-color .15s, box-shadow .15s;
+        outline: none;
+      }
+      input[type="password"]:focus,
+      select:focus {
+        border-color: #49b4e9;
+        box-shadow: 0 0 0 3px rgba(73,180,233,.15);
+        background: #fff;
+      }
+      select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+      /* ---- Toggle switch ---- */
+      .toggle-row {
+        cursor: pointer;
+      }
+
+      .toggle {
+        position: relative;
+        width: 50px; height: 28px;
+        flex-shrink: 0;
+      }
+      .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+      .toggle-track {
+        position: absolute; inset: 0;
+        background: #ccc;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: background .2s;
+      }
+      .toggle-track::after {
+        content: '';
+        position: absolute;
+        top: 3px; left: 3px;
+        width: 22px; height: 22px;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 1px 4px rgba(0,0,0,.2);
+        transition: transform .2s;
+      }
+      .toggle input:checked + .toggle-track {
+        background: #49b4e9;
+      }
+      .toggle input:checked + .toggle-track::after {
+        transform: translateX(22px);
+      }
+
+      .toggle-status {
+        font-size: 12px;
+        font-weight: 600;
+        min-width: 28px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .toggle-status.off { color: #bbb; }
+      .toggle-status.on  { color: #49b4e9; }
+
+      /* ---- Actions ---- */
+      .actions {
+        padding: 20px 24px;
+        display: flex;
+        gap: 10px;
+      }
+
+      button {
+        flex: 1;
+        padding: 11px 16px;
+        border-radius: 10px;
+        border: none;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: opacity .15s, transform .1s;
+      }
+      button:active { transform: scale(.97); }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #0582FF, #49b4e9);
+        color: #fff;
+      }
+      .btn-primary:hover { opacity: .9; }
+
+      .btn-danger {
+        background: #fff0f0;
+        color: #e53935;
+      }
+      .btn-danger:hover { background: #ffe5e5; }
+
+      /* ---- Toast ---- */
+      .toast {
+        position: fixed;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: #1a1a1a;
+        color: #fff;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        pointer-events: none;
+        opacity: 0;
+        transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s;
+        z-index: 9999;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-icon">D</div>
+        <div class="header-text">
+          <h1>DeepL 翻譯設定</h1>
+          <p>選取文字即時翻譯為目標語言</p>
+        </div>
+      </div>
+
+      <!-- API Key -->
+      <div class="card">
+        <div class="card-title">API 連線</div>
+        <div class="field">
+          <div class="field-icon key">🔑</div>
+          <div class="field-body">
+            <div class="field-label">DeepL API Key</div>
+            <input id="deeplApiKey" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx" autocomplete="off" />
+            <div class="field-hint" style="margin-top:6px;">
+              前往 <a href="https://www.deepl.com/your-account/keys" target="_blank" style="color:#49b4e9; text-decoration:none;">DeepL 帳戶</a> 取得 API Key
+            </div>
+          </div>
+        </div>
+        <div class="field toggle-row" id="proRow">
+          <div class="field-icon plan">💎</div>
+          <div class="field-body">
+            <div class="field-label">DeepL Pro</div>
+            <div class="field-hint">啟用後改用 <code style="font-size:12px; background:#f0f0f0; padding:1px 5px; border-radius:4px;">api.deepl.com</code> 端點</div>
+          </div>
+          <div class="field-control" style="display:flex; align-items:center; gap:8px;">
+            <span class="toggle-status off" id="proStatus">OFF</span>
+            <label class="toggle">
+              <input id="useDeepLPro" type="checkbox" />
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Target Language -->
+      <div class="card">
+        <div class="card-title">翻譯偏好</div>
+        <div class="field">
+          <div class="field-icon lang">🌐</div>
+          <div class="field-body">
+            <div class="field-label">目標語言</div>
+            <select id="targetLang">
+              <optgroup label="常用">
+                <option value="ZH-HANT">繁體中文</option>
+                <option value="ZH-HANS">簡體中文</option>
+                <option value="EN-US">English (US)</option>
+                <option value="EN-GB">English (UK)</option>
+                <option value="JA">日本語</option>
+                <option value="KO">한국어</option>
+              </optgroup>
+              <optgroup label="歐洲語言">
+                <option value="FR">Français</option>
+                <option value="DE">Deutsch</option>
+                <option value="ES">Español</option>
+                <option value="PT-PT">Português</option>
+                <option value="PT-BR">Português (Brasil)</option>
+                <option value="IT">Italiano</option>
+                <option value="NL">Nederlands</option>
+                <option value="PL">Polski</option>
+                <option value="RU">Русский</option>
+                <option value="UK">Українська</option>
+                <option value="EL">Ελληνικά</option>
+                <option value="BG">Български</option>
+                <option value="CS">Čeština</option>
+                <option value="DA">Dansk</option>
+                <option value="ET">Eesti</option>
+                <option value="FI">Suomi</option>
+                <option value="HU">Magyar</option>
+                <option value="LT">Lietuvių</option>
+                <option value="LV">Latviešu</option>
+                <option value="NB">Norsk bokmål</option>
+                <option value="RO">Română</option>
+                <option value="SK">Slovenčina</option>
+                <option value="SL">Slovenščina</option>
+                <option value="SV">Svenska</option>
+              </optgroup>
+              <optgroup label="其他">
+                <option value="AR">العربية</option>
+                <option value="ID">Bahasa Indonesia</option>
+                <option value="TR">Türkçe</option>
+              </optgroup>
+            </select>
+            <div class="field-hint" style="margin-top:6px;">選取的文字若與目標語言相同則不會觸發翻譯</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card">
+        <div class="actions">
+          <button id="save" class="btn-primary">儲存設定</button>
+          <button id="clear" class="btn-danger">清除金鑰</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="options.js"></script>
+  </body>
+</html>
