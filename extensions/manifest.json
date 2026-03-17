@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "API \u7c3d\u540d\u5de5\u5177",
+  "version": "1.0",
+  "description": "\u5feb\u901f\u7d44\u5408 API \u8acb\u6c42\u8207\u7c3d\u540d",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "permissions": []
+}
