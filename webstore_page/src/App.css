@@ -180,3 +180,11 @@
 .review-star{font-size:36px;cursor:pointer;color:#dadce0;transition:color .2s,transform .15s;user-select:none}
 .review-star:hover{transform:scale(1.2)}
 .review-star.active{color:#fbbc04}
+
+/* ============ TOOLTIP ============ */
+.tooltip-wrap{position:relative;cursor:pointer}
+.tooltip{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#2d2d2d;color:#fff;font-size:12px;font-weight:400;line-height:1.5;padding:8px 12px;border-radius:8px;white-space:nowrap;z-index:300;box-shadow:0 2px 8px rgba(0,0,0,.2);pointer-events:auto}
+.tooltip::before{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:#2d2d2d}
+.tooltip a{color:#8ab4f8;text-decoration:none}
+.tooltip a:hover{text-decoration:underline}
+.tooltip-wrap:hover .tooltip{display:block}

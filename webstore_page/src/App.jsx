@@ -76,14 +76,18 @@ export default function App() {
             <svg viewBox="0 0 24 24" fill="#0b57d0"><path d="M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82 1.89 3.2L12 21.04l3.4 1.46 1.89-3.2 3.61-.82-.34-3.69L23 12zm-12.91 4.72l-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"/></svg>
             <span>deepl-translate-tool</span>
           </span>
-          <span className="ext-featured">
+          <span className="ext-featured tooltip-wrap">
             <svg viewBox="0 0 24 24" fill="#137333"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
             精選商品
+            <div className="tooltip">這位發布者記錄良好，沒有任何違規事項。<a href="https://support.google.com/chrome_webstore?source=404&sjid=5012819729931096164-NC#topic=6243095" target="_blank" rel="noreferrer">瞭解詳情</a>。</div>
           </span>
           <span className="ext-rating">
             5 <span className="ext-star">★</span> <span className="ext-rc">(100 個評分)</span>
           </span>
-          <button className="ext-ibtn"><svg viewBox="0 0 24 24" fill="#5f6368"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></button>
+          <span className="ext-ibtn tooltip-wrap">
+            <svg viewBox="0 0 24 24" fill="#5f6368"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <div className="tooltip">評分每天更新，可能無法即時顯示最新評論。</div>
+          </span>
           <button className="ext-share" onClick={()=>{setShareOpen(true);setCopied(false)}}>
             <svg viewBox="0 0 24 24" fill="#0b57d0"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
             分享
@@ -165,6 +169,10 @@ export default function App() {
             <div className="rating-display">
               <span className="rating-score">5 分 (滿分 5 分)</span>
               <span className="rating-stars">★★★★★</span>
+              <span className="ext-ibtn tooltip-wrap" style={{marginLeft:4}}>
+                <svg viewBox="0 0 24 24" fill="#5f6368"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                <div className="tooltip">參考 Chrome 擴充功能適用的建議做法。<a href="https://support.google.com/chrome_webstore?source=404&sjid=5012819729931096164-NC#topic=6243095" target="_blank" rel="noreferrer">瞭解詳情</a>。</div>
+              </span>
             </div>
             <p className="rating-count">100 個評分 · <a href="https://support.google.com/chrome_webstore/answer/12225786?p=cws_reviews_results" target="_blank" rel="noreferrer">進一步瞭解結果與評論。</a></p>
           </div>
