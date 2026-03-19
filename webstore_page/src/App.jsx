@@ -18,6 +18,9 @@ export default function App() {
   const [reviewStars, setReviewStars] = useState(5)
   const [reviewText, setReviewText] = useState('')
   const [hoverStar, setHoverStar] = useState(0)
+  const [searchActive, setSearchActive] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const searchInputRef = useRef(null)
 
   useEffect(() => {
     if (reviewStars < 5) {
@@ -38,13 +41,30 @@ export default function App() {
     {/* HEADER */}
     <header className="header">
       <div className="header-inner">
-        <div className="header-logo">
+        <a className="header-logo" href="https://chromewebstore.google.com/?utm_source=ext_sidebar" target="_blank" rel="noreferrer">
           <img src={`${import.meta.env.BASE_URL}cws-logo.svg`} alt="" style={{width:32,height:32,flexShrink:0}} />
           <span className="header-logo-text">chrome 線上應用程式商店</span>
-        </div>
-        <div className="header-search">
+        </a>
+        <div className={`header-search${searchActive ? ' active' : ''}`} onClick={()=>{setSearchActive(true);setTimeout(()=>searchInputRef.current?.focus(),0)}}>
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-          <span>搜尋擴充功能和主題</span>
+          {searchActive ? (
+            <input
+              ref={searchInputRef}
+              className="header-search-input"
+              value={searchText}
+              onChange={e=>setSearchText(e.target.value)}
+              onKeyDown={e=>{if(e.key==='Enter'&&searchText.trim()){window.open(`https://chromewebstore.google.com/search/${encodeURIComponent(searchText.trim())}?utm_source=ext_sidebar`,'_blank')}}}
+              onBlur={()=>{if(!searchText){setSearchActive(false)}}}
+              placeholder="搜尋擴充功能和主題"
+            />
+          ) : (
+            <span>搜尋擴充功能和主題</span>
+          )}
+          {searchActive && searchText && (
+            <button className="header-search-clear" onClick={e=>{e.stopPropagation();setSearchText('');searchInputRef.current?.focus()}}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#5f6368"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+          )}
         </div>
         <div className="header-right">
           <button className="hbtn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
@@ -56,9 +76,9 @@ export default function App() {
 
     {/* SUB NAV */}
     <nav className="subnav">
-      <button className="subnav-i">探索</button>
+      <a className="subnav-i" href="https://chromewebstore.google.com/?utm_source=ext_sidebar" target="_blank" rel="noreferrer">探索</a>
       <button className="subnav-i on">擴充功能</button>
-      <button className="subnav-i">主題</button>
+      <a className="subnav-i" href="https://chromewebstore.google.com/category/themes?utm_source=ext_sidebar" target="_blank" rel="noreferrer">主題</a>
     </nav>
 
     <div className="page">
@@ -67,14 +87,14 @@ export default function App() {
         <div className="ext-top">
           <div className="ext-icon"><img src={`${import.meta.env.BASE_URL}icon-128.png`} alt=""/></div>
           <div className="ext-title">
-            <h1 className="ext-name">DeepL Select-to-Translate</h1>
+            <h1 className="ext-name">Tooltran</h1>
           </div>
-          <a className="ext-cta" href={`${import.meta.env.BASE_URL}deepl-select-to-translate.zip`} download>加到 Chrome</a>
+          <a className="ext-cta" href={`${import.meta.env.BASE_URL}tooltran.zip`} download>加到 Chrome</a>
         </div>
         <div className="ext-meta">
           <span className="ext-dev tooltip-wrap">
             <svg viewBox="0 0 24 24" fill="#0b57d0"><path d="M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82 1.89 3.2L12 21.04l3.4 1.46 1.89-3.2 3.61-.82-.34-3.69L23 12zm-12.91 4.72l-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"/></svg>
-            <span>deepl-translate-tool</span>
+            <span>tooltran</span>
             <div className="tooltip">這位發布者記錄良好，沒有任何違規事項。<a href="https://support.google.com/chrome_webstore?source=404&sjid=5012819729931096164-NC#topic=6243095" target="_blank" rel="noreferrer">瞭解詳情</a>。</div>
           </span>
           <span className="ext-featured tooltip-wrap">
@@ -82,11 +102,8 @@ export default function App() {
             精選商品
             <div className="tooltip">參考 Chrome 擴充功能適用的建議做法。<a href="https://support.google.com/chrome_webstore?source=404&sjid=5012819729931096164-NC#topic=6243095" target="_blank" rel="noreferrer">瞭解詳情</a>。</div>
           </span>
-          <span className="ext-rating">
+          <span className="ext-rating tooltip-wrap">
             5 <span className="ext-star">★</span> <span className="ext-rc">(100 個評分)</span>
-          </span>
-          <span className="ext-ibtn tooltip-wrap">
-            <svg viewBox="0 0 24 24" fill="#5f6368"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
             <div className="tooltip">評分每天更新，可能無法即時顯示最新評論。</div>
           </span>
           <button className="ext-share" onClick={()=>{setShareOpen(true);setCopied(false)}}>
@@ -131,7 +148,7 @@ export default function App() {
         <h2 className="section-title">總覽</h2>
         <div className="overview">
           <div className="overview-fade" id="overviewBody">
-            <p>DeepL Select-to-Translate 是一款輕量快速的瀏覽器翻譯擴充功能。只需在網頁上選取文字，將游標移入右上角出現的藍色小點，即可立即獲得翻譯結果。</p>
+            <p>Tooltran 是一款輕量快速的瀏覽器翻譯擴充功能。只需在網頁上選取文字，將游標移入右上角出現的藍色小點，即可立即獲得翻譯結果。</p>
             <h3>✦ 主要特色</h3>
             <ul>
               <li><strong>選取即翻譯</strong> — 選取文字後出現藍色小點，滑入或點擊即觸發翻譯</li>
@@ -151,7 +168,7 @@ export default function App() {
               2. 開啟 Chrome，在網址列輸入 chrome://extensions/<br/>
               3. 開啟右上角「開發人員模式」開關<br/>
               4. 點擊「載入未封裝項目」，選取解壓縮後的 extensions 資料夾<br/>
-              5. 在擴充功能圖示上按右鍵 → 選項，輸入 DeepL API Key 並儲存<br/>
+              5. 在擴充功能圖示上按右鍵 → 選項，輸入 API Key 並儲存<br/>
               6. 在任意網頁選取文字，開始使用
             </p>
           </div>
@@ -195,7 +212,7 @@ export default function App() {
           </div>
           <div className="detail-item">
             <div className="detail-label">開發人員</div>
-            <div className="detail-value">deepl-translate-tool</div>
+            <div className="detail-value">tooltran</div>
             <div className="detail-links">
               <a href="https://www.deepl.com" target="_blank" rel="noreferrer">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
@@ -225,9 +242,9 @@ export default function App() {
       <div className="section">
         <h2 className="section-title">隱私權</h2>
         <div className="privacy-box">
-          「DeepL Select-to-Translate」已揭露下列關於收集及使用資料的資訊。如需更多詳細資訊，請參閱開發人員的 <a href="https://myaccount.google.com/privacypolicy" target="_blank" rel="noreferrer">privacy policy</a>。
+          「Tooltran」已揭露下列關於收集及使用資料的資訊。如需更多詳細資訊，請參閱開發人員的 <a href="https://myaccount.google.com/privacypolicy" target="_blank" rel="noreferrer">privacy policy</a>。
         </div>
-        <p style={{fontSize:14,color:'var(--text2)',marginBottom:12}}>DeepL Select-to-Translate 不會處理下列資料：</p>
+        <p style={{fontSize:14,color:'var(--text2)',marginBottom:12}}>Tooltran 不會處理下列資料：</p>
         <div className="privacy-cols">
           <div className="privacy-left">
             <div className="privacy-badges">
@@ -276,7 +293,7 @@ export default function App() {
         <button className="share-close" onClick={()=>setShareOpen(false)}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
-        <h3 className="share-title">DeepL Select-to-Translate</h3>
+        <h3 className="share-title">Tooltran</h3>
         <p className="share-subtitle">分享這個項目</p>
         <div className="share-icons">
           <a className="share-icon" style={{background:'#0077B5'}} href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noreferrer" title="LinkedIn">
@@ -285,13 +302,13 @@ export default function App() {
           <a className="share-icon" style={{background:'#1877F2'}} href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noreferrer" title="Facebook">
             <svg viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
           </a>
-          <a className="share-icon" style={{background:'#FF4500'}} href={`https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent('DeepL Select-to-Translate')}`} target="_blank" rel="noreferrer" title="Reddit">
+          <a className="share-icon" style={{background:'#FF4500'}} href={`https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent('Tooltran')}`} target="_blank" rel="noreferrer" title="Reddit">
             <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 01-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 01.042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 014.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 01.14-.197.35.35 0 01.238-.042l2.906.617a1.214 1.214 0 011.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 00-.231.094.33.33 0 000 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 000-.462.342.342 0 00-.461 0c-.545.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 00-.206-.095z"/></svg>
           </a>
-          <a className="share-icon" style={{background:'#000'}} href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('DeepL Select-to-Translate')}`} target="_blank" rel="noreferrer" title="X">
+          <a className="share-icon" style={{background:'#000'}} href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Tooltran')}`} target="_blank" rel="noreferrer" title="X">
             <svg viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
-          <a className="share-icon" style={{background:'#25D366'}} href={`https://wa.me/?text=${encodeURIComponent('DeepL Select-to-Translate ' + shareUrl)}`} target="_blank" rel="noreferrer" title="WhatsApp">
+          <a className="share-icon" style={{background:'#25D366'}} href={`https://wa.me/?text=${encodeURIComponent('Tooltran ' + shareUrl)}`} target="_blank" rel="noreferrer" title="WhatsApp">
             <svg viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           </a>
         </div>
@@ -313,7 +330,7 @@ export default function App() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
         <h3 className="share-title">撰寫評論</h3>
-        <p className="share-subtitle">為 DeepL Select-to-Translate 評分</p>
+        <p className="share-subtitle">為 Tooltran 評分</p>
         <div className="review-stars">
           {[1,2,3,4,5].map(n=>(
             <span

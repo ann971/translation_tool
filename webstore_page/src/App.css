@@ -16,13 +16,18 @@
 
 /* ============ HEADER ============ */
 .header{background:var(--surface);position:sticky;top:0;z-index:100}
-.header-inner{height:56px;display:flex;align-items:center;padding:0 16px 0 24px}
-.header-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;cursor:pointer}
+.header-inner{height:56px;display:flex;align-items:center;padding:0 24px}
+.header-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;cursor:pointer;text-decoration:none}
 .header-logo svg{flex-shrink:0}
 .header-logo-text{font-size:18px;color:var(--text2);white-space:nowrap;letter-spacing:0}
-.header-search{flex:1;max-width:560px;height:48px;background:#f0f4f9;border-radius:12px;display:flex;align-items:center;padding:0 16px 0 20px;gap:14px;margin:0 auto}
+.header-search{flex:1;max-width:560px;height:48px;background:#f0f4f9;border-radius:12px;display:flex;align-items:center;padding:0 16px 0 20px;gap:14px;margin:0 auto;cursor:pointer;transition:background .2s,box-shadow .2s}
+.header-search.active{background:#fff;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.1);cursor:text}
 .header-search svg{width:22px;height:22px;color:#646667;flex-shrink:0}
-.header-search span{font-size:16px;color:#646667}
+.header-search span{font-size:16px;color:#646667;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-search-input{flex:1;border:none;background:transparent;font-size:16px;color:var(--text);outline:none;font-family:inherit;padding:0}
+.header-search-input::placeholder{color:#646667}
+.header-search-clear{width:32px;height:32px;border:none;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%;padding:0;flex-shrink:0}
+.header-search-clear:hover{background:#f1f3f4}
 .header-right{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:auto}
 .hbtn{width:40px;height:40px;border-radius:50%;border:none;background:transparent;display:flex;align-items:center;justify-content:center;color:var(--text2);cursor:pointer}
 .hbtn:hover{background:#f1f3f4}
@@ -31,7 +36,7 @@
 
 /* ============ SUB NAV ============ */
 .subnav{padding:0 20px;display:flex;gap:0}
-.subnav-i{padding:14px 16px 11px;font-size:14px;font-weight:500;color:var(--text2);border:none;background:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit}
+.subnav-i{padding:14px 16px 11px;font-size:14px;font-weight:500;color:var(--text2);border:none;background:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit;text-decoration:none}
 .subnav-i:hover{color:var(--text)}
 .subnav-i.on{color:var(--primary);border-bottom-color:var(--primary)}
 
@@ -50,16 +55,17 @@
 
 /* Meta */
 .ext-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--text2);margin-bottom:10px}
-.ext-dev{display:flex;align-items:center;gap:4px}
-.ext-dev svg{width:18px;height:18px;color:var(--primary)}
-.ext-dev a{color:var(--primary)}
-.ext-featured{display:inline-flex;align-items:center;gap:5px;color:var(--primary);font-weight:400}
+.ext-dev{display:flex;align-items:center;gap:4px;color:#0b57d0}
+.ext-dev svg{width:18px;height:18px;fill:#0b57d0}
+.ext-dev a{color:#0b57d0}
+.ext-featured{display:inline-flex;align-items:center;gap:5px;color:#137333;font-weight:400}
 .ext-featured svg{width:18px;height:18px;fill:#137333}
-.ext-rating{display:flex;align-items:center;gap:3px}
-.ext-star{color:var(--star)}
-.ext-rc{color:var(--primary)}
+.ext-rating{display:flex;align-items:center;gap:3px;color:var(--text);cursor:pointer}
+.ext-star{color:var(--text)}
+.ext-rc{color:var(--text)}
 .ext-ibtn{width:22px;height:22px;border:none;background:none;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .ext-ibtn svg{width:20px;height:20px}
+.ext-ibtn-icon{width:20px;height:20px;flex-shrink:0;margin-left:2px}
 .ext-share{display:flex;align-items:center;gap:4px;color:var(--primary);border:none;background:none;font-size:14px;font-family:inherit;cursor:pointer;padding:6px 12px;border-radius:20px;transition:background .15s}
 .ext-share:hover{background:#e8f0fe}
 .ext-share svg{width:18px;height:18px}
