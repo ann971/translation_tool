@@ -72,14 +72,15 @@ export default function App() {
           <a className="ext-cta" href={`${import.meta.env.BASE_URL}deepl-select-to-translate.zip`} download>加到 Chrome</a>
         </div>
         <div className="ext-meta">
-          <span className="ext-dev">
+          <span className="ext-dev tooltip-wrap">
             <svg viewBox="0 0 24 24" fill="#0b57d0"><path d="M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82 1.89 3.2L12 21.04l3.4 1.46 1.89-3.2 3.61-.82-.34-3.69L23 12zm-12.91 4.72l-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"/></svg>
             <span>deepl-translate-tool</span>
+            <div className="tooltip">這位發布者記錄良好，沒有任何違規事項。<a href="https://support.google.com/chrome_webstore?source=404&sjid=5012819729931096164-NC#topic=6243095" target="_blank" rel="noreferrer">瞭解詳情</a>。</div>
           </span>
           <span className="ext-featured tooltip-wrap">
             <svg viewBox="0 0 24 24" fill="#137333"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
             精選商品
-            <div className="tooltip">這位發布者記錄良好，沒有任何違規事項。<a href="https://support.google.com/chrome_webstore?source=404&sjid=5012819729931096164-NC#topic=6243095" target="_blank" rel="noreferrer">瞭解詳情</a>。</div>
+            <div className="tooltip">參考 Chrome 擴充功能適用的建議做法。<a href="https://support.google.com/chrome_webstore?source=404&sjid=5012819729931096164-NC#topic=6243095" target="_blank" rel="noreferrer">瞭解詳情</a>。</div>
           </span>
           <span className="ext-rating">
             5 <span className="ext-star">★</span> <span className="ext-rc">(100 個評分)</span>

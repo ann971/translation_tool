@@ -53,14 +53,15 @@
 .ext-dev{display:flex;align-items:center;gap:4px}
 .ext-dev svg{width:18px;height:18px;color:var(--primary)}
 .ext-dev a{color:var(--primary)}
-.ext-featured{display:inline-flex;align-items:center;gap:5px;color:var(--green);font-weight:400}
-.ext-featured svg{width:18px;height:18px}
+.ext-featured{display:inline-flex;align-items:center;gap:5px;color:var(--primary);font-weight:400}
+.ext-featured svg{width:18px;height:18px;fill:#137333}
 .ext-rating{display:flex;align-items:center;gap:3px}
 .ext-star{color:var(--star)}
 .ext-rc{color:var(--primary)}
 .ext-ibtn{width:22px;height:22px;border:none;background:none;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .ext-ibtn svg{width:20px;height:20px}
-.ext-share{display:flex;align-items:center;gap:4px;color:var(--primary);border:none;background:none;font-size:14px;font-family:inherit;cursor:pointer}
+.ext-share{display:flex;align-items:center;gap:4px;color:var(--primary);border:none;background:none;font-size:14px;font-family:inherit;cursor:pointer;padding:6px 12px;border-radius:20px;transition:background .15s}
+.ext-share:hover{background:#e8f0fe}
 .ext-share svg{width:18px;height:18px}
 
 /* Chips */
