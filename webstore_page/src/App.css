@@ -173,3 +173,10 @@
 .report-submit:hover{background:#006da3}
 .report-link{background:none;border:none;color:var(--primary);font-size:13px;cursor:pointer;padding:0;margin-top:12px;display:inline-block}
 .report-link:hover{text-decoration:underline}
+
+/* ============ REVIEW MODAL ============ */
+.review-modal{max-width:420px}
+.review-stars{display:flex;gap:8px;justify-content:center;margin-bottom:20px}
+.review-star{font-size:36px;cursor:pointer;color:#dadce0;transition:color .2s,transform .15s;user-select:none}
+.review-star:hover{transform:scale(1.2)}
+.review-star.active{color:#fbbc04}

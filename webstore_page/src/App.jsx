@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import './App.css'
 
 const SHOTS = [
@@ -14,6 +14,17 @@ export default function App() {
   const [copied, setCopied] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
   const [reportText, setReportText] = useState('')
+  const [reviewOpen, setReviewOpen] = useState(false)
+  const [reviewStars, setReviewStars] = useState(5)
+  const [reviewText, setReviewText] = useState('')
+  const [hoverStar, setHoverStar] = useState(0)
+
+  useEffect(() => {
+    if (reviewStars < 5) {
+      const timer = setTimeout(() => setReviewStars(5), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [reviewStars])
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const trackRef = useRef(null)
   const scroll = d => {
@@ -156,9 +167,8 @@ export default function App() {
               <span className="rating-stars">★★★★★</span>
             </div>
             <p className="rating-count">100 個評分 · <a href="https://support.google.com/chrome_webstore/answer/12225786?p=cws_reviews_results" target="_blank" rel="noreferrer">進一步瞭解結果與評論。</a></p>
-            <button className="rating-link">查看所有評論</button>
           </div>
-          <button className="rating-write">撰寫評論</button>
+          <button className="rating-write" onClick={()=>{setReviewOpen(true);setReviewStars(5);setReviewText('');setHoverStar(0)}}>撰寫評論</button>
         </div>
       </div>
 
@@ -199,7 +209,7 @@ export default function App() {
             <div className="detail-value">34 種語言</div>
           </div>
         </div>
-        <button className="report-link" onClick={()=>{setReportOpen(true);setReportText('')}}>回報疑慮</button>
+        <button className="report-link" style={{fontWeight:700}} onClick={()=>{setReportOpen(true);setReportText('')}}>回報疑慮</button>
       </div>
 
       {/* 隱私權 */}
@@ -236,7 +246,6 @@ export default function App() {
             </ul>
           </div>
         </div>
-        <button className="show-toggle" style={{marginTop:12}}>瞭解詳情</button>
       </div>
     </div>
 
@@ -284,6 +293,46 @@ export default function App() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
           </button>
         </div>
+      </div>
+    </>}
+
+    {/* REVIEW MODAL */}
+    {reviewOpen && <>
+      <div className="share-overlay" onClick={()=>setReviewOpen(false)}/>
+      <div className="share-modal review-modal">
+        <button className="share-close" onClick={()=>setReviewOpen(false)}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <h3 className="share-title">撰寫評論</h3>
+        <p className="share-subtitle">為 DeepL Select-to-Translate 評分</p>
+        <div className="review-stars">
+          {[1,2,3,4,5].map(n=>(
+            <span
+              key={n}
+              className={`review-star ${n <= (hoverStar || reviewStars) ? 'active' : ''}`}
+              onClick={()=>setReviewStars(n)}
+              onMouseEnter={()=>setHoverStar(n)}
+              onMouseLeave={()=>setHoverStar(0)}
+            >★</span>
+          ))}
+        </div>
+        <textarea
+          className="report-textarea"
+          placeholder="分享您的使用體驗..."
+          value={reviewText}
+          onChange={e=>setReviewText(e.target.value)}
+          rows={4}
+        />
+        <a
+          className="report-submit"
+          href={`https://t.me/annnmnnn?text=${encodeURIComponent('⭐'.repeat(reviewStars) + '\n' + reviewText)}`}
+          target="_blank"
+          rel="noreferrer"
+          onClick={()=>setReviewOpen(false)}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161l-1.97 9.281c-.146.658-.537.818-1.084.508l-3-2.211-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.538-.196 1.006.128.832.942z"/></svg>
+          透過 Telegram 送出評論
+        </a>
       </div>
     </>}
 
