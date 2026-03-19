@@ -168,8 +168,8 @@ export default function App() {
             </div>
             <p className="rating-count">100 個評分 · <a href="https://support.google.com/chrome_webstore/answer/12225786?p=cws_reviews_results" target="_blank" rel="noreferrer">進一步瞭解結果與評論。</a></p>
           </div>
-          <button className="rating-write" onClick={()=>{setReviewOpen(true);setReviewStars(5);setReviewText('');setHoverStar(0)}}>撰寫評論</button>
         </div>
+        <button className="report-link" style={{fontWeight:700}} onClick={()=>{setReviewOpen(true);setReviewStars(5);setReviewText('');setHoverStar(0)}}>撰寫評論</button>
       </div>
 
       {/* 詳細資料 */}
@@ -218,7 +218,7 @@ export default function App() {
         <div className="privacy-box">
           「DeepL Select-to-Translate」已揭露下列關於收集及使用資料的資訊。如需更多詳細資訊，請參閱開發人員的 <a href="https://myaccount.google.com/privacypolicy" target="_blank" rel="noreferrer">privacy policy</a>。
         </div>
-        <p style={{fontSize:14,color:'var(--text2)',marginBottom:12}}>DeepL Select-to-Translate 會處理下列資料：</p>
+        <p style={{fontSize:14,color:'var(--text2)',marginBottom:12}}>DeepL Select-to-Translate 不會處理下列資料：</p>
         <div className="privacy-cols">
           <div className="privacy-left">
             <div className="privacy-badges">
