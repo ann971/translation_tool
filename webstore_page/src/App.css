@@ -197,7 +197,7 @@
 .tooltip-wrap:hover .tooltip{display:block}
 
 /* ============ LIGHTBOX ============ */
-.lightbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.lightbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .lightbox-close{position:absolute;top:16px;right:16px;width:44px;height:44px;border:none;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:402;transition:background .15s}
 .lightbox-close:hover{background:rgba(255,255,255,.25)}
 .lightbox-img{max-width:90vw;max-height:85vh;border-radius:8px;object-fit:contain;cursor:default;z-index:401}

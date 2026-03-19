@@ -20,6 +20,7 @@ export default function App() {
   const [searchActive, setSearchActive] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [lightbox, setLightbox] = useState(-1)
+  const [activeSlide, setActiveSlide] = useState(0)
   const searchInputRef = useRef(null)
 
   useEffect(() => {
@@ -30,11 +31,16 @@ export default function App() {
   }, [reviewStars])
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const trackRef = useRef(null)
-  const scroll = d => {
+  const scrollTo = idx => {
     const el = trackRef.current
     if (!el) return
     const w = el.querySelector('.carousel-slide')?.offsetWidth + 16 || 400
-    el.scrollBy({ left: d * w, behavior: 'smooth' })
+    el.scrollTo({ left: idx * w, behavior: 'smooth' })
+    setActiveSlide(idx)
+  }
+  const scroll = d => {
+    const next = (activeSlide + d + SHOTS.length) % SHOTS.length
+    scrollTo(next)
   }
 
   return <>
@@ -136,7 +142,7 @@ export default function App() {
       </div>
       <div className="thumbs">
         {SHOTS.map((s,i)=>(
-          <div key={i} className={`thumb${i===0?' on':''}`}>
+          <div key={i} className={`thumb${i===activeSlide?' on':''}`} onClick={()=>scrollTo(i)}>
             <img src={`${import.meta.env.BASE_URL}${s.img}`} alt="" />
           </div>
         ))}
