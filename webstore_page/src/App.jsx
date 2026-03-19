@@ -61,7 +61,7 @@ export default function App() {
         <div className="ext-meta">
           <span className="ext-dev">
             <svg viewBox="0 0 24 24" fill="#0b57d0"><path d="M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82 1.89 3.2L12 21.04l3.4 1.46 1.89-3.2 3.61-.82-.34-3.69L23 12zm-12.91 4.72l-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"/></svg>
-            <a href="#">deepl-translate-tool</a>
+            <span>deepl-translate-tool</span>
           </span>
           <span className="ext-featured">
             <svg viewBox="0 0 24 24" fill="#137333"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
@@ -153,7 +153,7 @@ export default function App() {
               <span className="rating-score">5 分 (滿分 5 分)</span>
               <span className="rating-stars">★★★★★</span>
             </div>
-            <p className="rating-count">100 個評分 · <a href="#">進一步瞭解結果與評論。</a></p>
+            <p className="rating-count">100 個評分 · 進一步瞭解結果與評論。</p>
             <button className="rating-link">查看所有評論</button>
           </div>
           <button className="rating-write">撰寫評論</button>
@@ -197,14 +197,14 @@ export default function App() {
             <div className="detail-value">34 種語言</div>
           </div>
         </div>
-        <a href="#" className="report-link">回報疑慮</a>
+        <span className="report-link">回報疑慮</span>
       </div>
 
       {/* 隱私權 */}
       <div className="section">
         <h2 className="section-title">隱私權</h2>
         <div className="privacy-box">
-          「DeepL Select-to-Translate」已揭露下列關於收集及使用資料的資訊。如需更多詳細資訊，請參閱開發人員的 <a href="#">privacy policy</a>。
+          「DeepL Select-to-Translate」已揭露下列關於收集及使用資料的資訊。如需更多詳細資訊，請參閱開發人員的 <a href="https://myaccount.google.com/privacypolicy" target="_blank" rel="noreferrer">privacy policy</a>。
         </div>
         <p style={{fontSize:14,color:'var(--text2)',marginBottom:12}}>DeepL Select-to-Translate 會處理下列資料：</p>
         <div className="privacy-cols">
@@ -242,10 +242,10 @@ export default function App() {
     <footer className="footer">
       <div className="footer-inner">
         關於 Chrome 線上應用程式商店 ·
-        <a href="#">開發人員資訊主頁</a>·
-        <a href="#">隱私權政策</a>·
-        <a href="#">服務條款</a>·
-        <a href="#">說明</a>
+        <a href="https://chrome.google.com/webstore/devconsole/" target="_blank" rel="noreferrer">開發人員資訊主頁</a>·
+        <a href="https://myaccount.google.com/privacypolicy" target="_blank" rel="noreferrer">隱私權政策</a>·
+        <a href="https://ssl.gstatic.com/chrome/webstore/intl/gallery_tos.html" target="_blank" rel="noreferrer">服務條款</a>·
+        <a href="https://support.google.com/chrome_webstore" target="_blank" rel="noreferrer">說明</a>
       </div>
     </footer>
 
