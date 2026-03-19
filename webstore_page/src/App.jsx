@@ -130,8 +130,8 @@ export default function App() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
         </button>
         <div className="carousel-track" ref={trackRef}>
-          {SHOTS.map((s,i)=>(
-            <div className="carousel-slide" key={i} onClick={()=>setLightbox(i)} style={{cursor:'pointer'}}>
+          {[...SHOTS, SHOTS[0]].map((s,i)=>(
+            <div className="carousel-slide" key={i} onClick={()=>setLightbox(i % SHOTS.length)} style={{cursor:'pointer'}}>
               <img className="carousel-img" src={`${import.meta.env.BASE_URL}${s.img}`} alt="" />
             </div>
           ))}
