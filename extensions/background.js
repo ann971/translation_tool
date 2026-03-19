@@ -1,10 +1,15 @@
-// DeepL 翻譯：依使用者設定的目標語言輸出
+// Tooltran：依使用者設定的目標語言輸出
 // 單字模式：透過 Free Dictionary API 取得詞性與釋義，再以 DeepL 批次翻譯
 // 句子模式：直接以 DeepL 翻譯；若目標為 ZH-HANT 額外做簡→繁轉換
 
 const DEEPL_FREE_ENDPOINT = "https://api-free.deepl.com/v2/translate";
 const DEEPL_PRO_ENDPOINT  = "https://api.deepl.com/v2/translate";
 const DICT_ENDPOINT        = "https://api.dictionaryapi.dev/api/v2/entries";
+
+// 點擊工具列圖示 → 開啟側邊欄
+chrome.action.onClicked.addListener((tab) => {
+  chrome.sidePanel.open({ tabId: tab.id });
+});
 
 // content 要設定值時，統一由 background 讀 storage
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

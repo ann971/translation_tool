@@ -1,4 +1,4 @@
-// content.js — DeepL 選字翻譯（依設定目標語言）
+// content.js — Tooltran 選字翻譯（依設定目標語言）
 // 功能：選字→顯示 12×12 #49b4e9 圓形按鈕→滑入/點擊開啟翻譯面板
 // 特色：按鈕/面板以 absolute 跟隨頁面滾動；面板可拖曳（拖後視為釘住，不再自動跟隨）
 // 規則：若偵測到選取文字與目標語言相同則不翻譯
@@ -59,7 +59,7 @@
 
   // ---- Shadow DOM（隔離樣式與節點）
   const host = document.createElement("div");
-  host.id = "deepl-translate-shadow-host";
+  host.id = "tooltran-shadow-host";
   const shadow = host.attachShadow({ mode: "open" });
   document.documentElement.appendChild(host);
 
@@ -93,6 +93,9 @@
     .ai-def-list li{margin:2px 0; font-size:14px; line-height:1.5;}
     .ai-tools{display:flex; gap:8px;}
     .ai-icon{cursor:pointer; opacity:.85;} .ai-icon:hover{opacity:1;}
+    .ai-spinner{display:flex;align-items:center;justify-content:center;padding:8px 0;}
+    .ai-spinner svg{width:24px;height:24px;animation:ai-spin .8s linear infinite;color:#49b4e9;}
+    @keyframes ai-spin{to{transform:rotate(360deg);}}
   `;
   shadow.appendChild(style);
 
@@ -105,17 +108,23 @@
   panel.className = "ai-panel";
   panel.innerHTML = `
     <div class="ai-panel-header" id="ai-header">
-      <div class="ai-title">DeepL 翻譯</div>
+      <div class="ai-title">Tooltran</div>
       <div class="ai-tools"><span class="ai-icon" id="ai-close" title="關閉">✖</span></div>
     </div>
-    <div class="ai-body" id="ai-body">載入中…</div>
+    <div class="ai-body" id="ai-body"></div>
   `;
   shadow.appendChild(panel);
+
+  const SPINNER_HTML = '<div class="ai-spinner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2a10 10 0 0 1 10 10" /></svg></div>';
 
   // ---- 工具：安全設定面板文字
   function setBody(text){
     const el = shadow.getElementById("ai-body");
     if (el) el.textContent = (text == null) ? "" : String(text);
+  }
+  function setBodyLoading(){
+    const el = shadow.getElementById("ai-body");
+    if (el) el.innerHTML = SPINNER_HTML;
   }
 
   // ---- 工具：渲染單字結果（詞性 + 條列釋義）
@@ -232,7 +241,7 @@
     if(!state.selectionText) return;
 
     openPanel();
-    setBody("載入中…");
+    setBodyLoading();
 
     if(!(window.chrome && chrome.runtime && chrome.runtime.id)){
       setBody("❌ 無法連線到擴充功能環境。請在一般網頁使用或重新整理。");

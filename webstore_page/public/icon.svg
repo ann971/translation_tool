@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="28" fill="#5BC0EB"/>
+  <!-- Stylized "T" with arrow -->
+  <g fill="#fff">
+    <!-- Left stroke of T/arrow -->
+    <path d="M32 38h14v52H32z" rx="3"/>
+    <!-- Top bar -->
+    <path d="M28 34h44v12H28z" rx="3"/>
+    <!-- Arrow body -->
+    <path d="M52 54h36v12H52z" rx="3"/>
+    <!-- Arrow head -->
+    <path d="M80 42l20 18-20 18V42z"/>
+  </g>
+</svg>

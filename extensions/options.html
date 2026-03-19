@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>DeepL 翻譯設定</title>
+    <title>Tooltran 設定</title>
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -15,7 +15,7 @@
         display: flex;
         align-items: flex-start;
         justify-content: center;
-        padding: 48px 20px;
+        padding: 32px 16px;
       }
 
       .container { width: 100%; max-width: 520px; }
@@ -29,11 +29,9 @@
       }
       .header-icon {
         width: 48px; height: 48px;
-        background: linear-gradient(135deg, #0582FF, #49b4e9);
         border-radius: 14px;
-        display: flex; align-items: center; justify-content: center;
-        color: #fff; font-size: 22px; font-weight: 700;
         flex-shrink: 0;
+        object-fit: cover;
       }
       .header-text h1 { font-size: 20px; font-weight: 700; line-height: 1.3; }
       .header-text p { font-size: 13px; color: #888; }
@@ -217,22 +215,22 @@
     <div class="container">
       <!-- Header -->
       <div class="header">
-        <div class="header-icon">D</div>
+        <img class="header-icon" src="icons/icon128.png" alt="Tooltran" />
         <div class="header-text">
-          <h1>DeepL 翻譯設定</h1>
-          <p>選取文字即時翻譯為目標語言</p>
+          <h1 data-i18n="title">Tooltran 設定</h1>
+          <p data-i18n="subtitle">選取文字即時翻譯為目標語言</p>
         </div>
       </div>
 
       <!-- API Key -->
       <div class="card">
-        <div class="card-title">API 連線</div>
+        <div class="card-title" data-i18n="apiSection">API 連線</div>
         <div class="field">
           <div class="field-icon key">🔑</div>
           <div class="field-body">
             <div class="field-label">DeepL API Key</div>
             <input id="deeplApiKey" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx" autocomplete="off" />
-            <div class="field-hint" style="margin-top:6px;">
+            <div class="field-hint" style="margin-top:6px;" data-i18n-html="apiHint">
               前往 <a href="https://www.deepl.com/your-account/keys" target="_blank" style="color:#49b4e9; text-decoration:none;">DeepL 帳戶</a> 取得 API Key
             </div>
           </div>
@@ -241,7 +239,7 @@
           <div class="field-icon plan">💎</div>
           <div class="field-body">
             <div class="field-label">DeepL Pro</div>
-            <div class="field-hint">啟用後改用 <code style="font-size:12px; background:#f0f0f0; padding:1px 5px; border-radius:4px;">api.deepl.com</code> 端點</div>
+            <div class="field-hint" data-i18n="proHint">Pro 帳戶使用專屬線路</div>
           </div>
           <div class="field-control" style="display:flex; align-items:center; gap:8px;">
             <span class="toggle-status off" id="proStatus">OFF</span>
@@ -255,13 +253,13 @@
 
       <!-- Target Language -->
       <div class="card">
-        <div class="card-title">翻譯偏好</div>
+        <div class="card-title" data-i18n="prefSection">翻譯偏好</div>
         <div class="field">
           <div class="field-icon lang">🌐</div>
           <div class="field-body">
-            <div class="field-label">目標語言</div>
+            <div class="field-label" data-i18n="targetLabel">目標語言</div>
             <select id="targetLang">
-              <optgroup label="常用">
+              <optgroup label="常用" data-i18n-attr="label:optCommon">
                 <option value="ZH-HANT">繁體中文</option>
                 <option value="ZH-HANS">簡體中文</option>
                 <option value="EN-US">English (US)</option>
@@ -269,7 +267,7 @@
                 <option value="JA">日本語</option>
                 <option value="KO">한국어</option>
               </optgroup>
-              <optgroup label="歐洲語言">
+              <optgroup label="歐洲語言" data-i18n-attr="label:optEurope">
                 <option value="FR">Français</option>
                 <option value="DE">Deutsch</option>
                 <option value="ES">Español</option>
@@ -295,13 +293,13 @@
                 <option value="SL">Slovenščina</option>
                 <option value="SV">Svenska</option>
               </optgroup>
-              <optgroup label="其他">
+              <optgroup label="其他" data-i18n-attr="label:optOther">
                 <option value="AR">العربية</option>
                 <option value="ID">Bahasa Indonesia</option>
                 <option value="TR">Türkçe</option>
               </optgroup>
             </select>
-            <div class="field-hint" style="margin-top:6px;">選取的文字若與目標語言相同則不會觸發翻譯</div>
+            <div class="field-hint" style="margin-top:6px;" data-i18n="targetHint">選取的文字若與目標語言相同則不會觸發翻譯</div>
           </div>
         </div>
       </div>
@@ -309,8 +307,8 @@
       <!-- Actions -->
       <div class="card">
         <div class="actions">
-          <button id="save" class="btn-primary">儲存設定</button>
-          <button id="clear" class="btn-danger">清除金鑰</button>
+          <button id="save" class="btn-primary" data-i18n="save">儲存設定</button>
+          <button id="clear" class="btn-danger" data-i18n="clear">清除金鑰</button>
         </div>
       </div>
     </div>

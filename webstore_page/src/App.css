@@ -18,6 +18,7 @@
 .header{background:var(--surface);position:sticky;top:0;z-index:100}
 .header-inner{height:56px;display:flex;align-items:center;padding:0 24px}
 .header-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;cursor:pointer;text-decoration:none}
+.header-logo:hover{text-decoration:none}
 .header-logo svg{flex-shrink:0}
 .header-logo-text{font-size:18px;color:var(--text2);white-space:nowrap;letter-spacing:0}
 .header-search{flex:1;max-width:560px;height:48px;background:#f0f4f9;border-radius:12px;display:flex;align-items:center;padding:0 16px 0 20px;gap:14px;margin:0 auto;cursor:pointer;transition:background .2s,box-shadow .2s}
@@ -37,7 +38,7 @@
 /* ============ SUB NAV ============ */
 .subnav{padding:0 20px;display:flex;gap:0}
 .subnav-i{padding:14px 16px 11px;font-size:14px;font-weight:500;color:var(--text2);border:none;background:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit;text-decoration:none}
-.subnav-i:hover{color:var(--text)}
+.subnav-i:hover{color:var(--text);text-decoration:none}
 .subnav-i.on{color:var(--primary);border-bottom-color:var(--primary)}
 
 /* ============ PAGE CONTENT ============ */
@@ -46,8 +47,8 @@
 /* ============ EXT HEADER ============ */
 .ext{padding:28px 0 0}
 .ext-top{display:flex;align-items:flex-start;gap:18px;margin-bottom:14px}
-.ext-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#0582FF,#49b4e9);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ext-icon img{width:32px;height:32px}
+.ext-icon{width:52px;height:52px;border-radius:14px;flex-shrink:0;overflow:hidden}
+.ext-icon img{width:52px;height:52px;display:block;object-fit:cover}
 .ext-title{flex:1;min-width:0}
 .ext-name{font-size:32px;font-weight:600;color:var(--text);line-height:1.25;margin:0}
 .ext-cta{flex-shrink:0;height:38px;padding:0 24px;background:var(--primary);color:var(--on-primary);font-size:14px;font-weight:500;font-family:inherit;border:none;border-radius:20px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;align-self:center;transition:background .2s,box-shadow .2s}
