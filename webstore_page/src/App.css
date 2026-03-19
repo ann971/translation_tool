@@ -195,3 +195,14 @@
 .tooltip a{color:#8ab4f8;text-decoration:none}
 .tooltip a:hover{text-decoration:underline}
 .tooltip-wrap:hover .tooltip{display:block}
+
+/* ============ LIGHTBOX ============ */
+.lightbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.lightbox-close{position:absolute;top:16px;right:16px;width:44px;height:44px;border:none;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:402;transition:background .15s}
+.lightbox-close:hover{background:rgba(255,255,255,.25)}
+.lightbox-img{max-width:90vw;max-height:85vh;border-radius:8px;object-fit:contain;cursor:default;z-index:401}
+.lightbox-arrow{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border:none;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:402;transition:background .15s}
+.lightbox-arrow:hover{background:rgba(255,255,255,.25)}
+.lightbox-prev{left:16px}
+.lightbox-next{right:16px}
+.lightbox-counter{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;font-size:14px;background:rgba(0,0,0,.5);padding:6px 16px;border-radius:20px;z-index:402;cursor:default}

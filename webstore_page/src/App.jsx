@@ -19,6 +19,7 @@ export default function App() {
   const [hoverStar, setHoverStar] = useState(0)
   const [searchActive, setSearchActive] = useState(false)
   const [searchText, setSearchText] = useState('')
+  const [lightbox, setLightbox] = useState(-1)
   const searchInputRef = useRef(null)
 
   useEffect(() => {
@@ -124,7 +125,7 @@ export default function App() {
         </button>
         <div className="carousel-track" ref={trackRef}>
           {SHOTS.map((s,i)=>(
-            <div className="carousel-slide" key={i}>
+            <div className="carousel-slide" key={i} onClick={()=>setLightbox(i)} style={{cursor:'pointer'}}>
               <img className="carousel-img" src={`${import.meta.env.BASE_URL}${s.img}`} alt="" />
             </div>
           ))}
@@ -386,6 +387,23 @@ export default function App() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161l-1.97 9.281c-.146.658-.537.818-1.084.508l-3-2.211-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.538-.196 1.006.128.832.942z"/></svg>
           透過 Telegram 送出
         </a>
+      </div>
+    </>}
+
+    {/* LIGHTBOX */}
+    {lightbox >= 0 && <>
+      <div className="lightbox-overlay" onClick={()=>setLightbox(-1)}>
+        <button className="lightbox-close" onClick={()=>setLightbox(-1)}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <button className="lightbox-arrow lightbox-prev" onClick={e=>{e.stopPropagation();setLightbox((lightbox - 1 + SHOTS.length) % SHOTS.length)}}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="#fff"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
+        <img className="lightbox-img" src={`${import.meta.env.BASE_URL}${SHOTS[lightbox].img}`} alt="" onClick={e=>e.stopPropagation()} />
+        <button className="lightbox-arrow lightbox-next" onClick={e=>{e.stopPropagation();setLightbox((lightbox + 1) % SHOTS.length)}}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="#fff"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
+        <div className="lightbox-counter" onClick={e=>e.stopPropagation()}>{lightbox + 1} / {SHOTS.length}</div>
       </div>
     </>}
   </>
