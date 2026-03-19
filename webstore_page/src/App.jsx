@@ -2,11 +2,10 @@ import { useRef, useState, useEffect } from 'react'
 import './App.css'
 
 const SHOTS = [
-  { icon: '🔵', t: '選取文字觸發翻譯' },
-  { icon: '📖', t: '單字模式：詞性與釋義' },
-  { icon: '📝', t: '句子模式：即時翻譯' },
-  { icon: '⚙️', t: '擴充功能設定頁面' },
-  { icon: '🌐', t: '多語言支援' },
+  { img: 'img/img-1.png' },
+  { img: 'img/img-2.png' },
+  { img: 'img/img-3.png' },
+  { img: 'img/img-4.png' },
 ]
 
 export default function App() {
@@ -126,10 +125,7 @@ export default function App() {
         <div className="carousel-track" ref={trackRef}>
           {SHOTS.map((s,i)=>(
             <div className="carousel-slide" key={i}>
-              <div className="carousel-ph">
-                <div className="i">{s.icon}</div>
-                <div className="t">{s.t}</div>
-              </div>
+              <img className="carousel-img" src={`${import.meta.env.BASE_URL}${s.img}`} alt="" />
             </div>
           ))}
         </div>
@@ -139,7 +135,9 @@ export default function App() {
       </div>
       <div className="thumbs">
         {SHOTS.map((s,i)=>(
-          <div key={i} className={`thumb${i===0?' on':''}`}>{s.icon}</div>
+          <div key={i} className={`thumb${i===0?' on':''}`}>
+            <img src={`${import.meta.env.BASE_URL}${s.img}`} alt="" />
+          </div>
         ))}
       </div>
 
