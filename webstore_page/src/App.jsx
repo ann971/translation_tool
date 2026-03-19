@@ -23,7 +23,7 @@ export default function App() {
     <header className="header">
       <div className="header-inner">
         <div className="header-logo">
-          <img src="/cws-logo.svg" alt="" style={{width:32,height:32,flexShrink:0}} />
+          <img src={`${import.meta.env.BASE_URL}cws-logo.svg`} alt="" style={{width:32,height:32,flexShrink:0}} />
           <span className="header-logo-text">chrome 線上應用程式商店</span>
         </div>
         <div className="header-search">
@@ -49,11 +49,11 @@ export default function App() {
       {/* EXT HEADER */}
       <div className="ext">
         <div className="ext-top">
-          <div className="ext-icon"><img src="/icon-128.png" alt=""/></div>
+          <div className="ext-icon"><img src={`${import.meta.env.BASE_URL}icon-128.png`} alt=""/></div>
           <div className="ext-title">
             <h1 className="ext-name">DeepL Select-to-Translate</h1>
           </div>
-          <a className="ext-cta" href="/deepl-select-to-translate.zip" download>加到 Chrome</a>
+          <a className="ext-cta" href={`${import.meta.env.BASE_URL}deepl-select-to-translate.zip`} download>加到 Chrome</a>
         </div>
         <div className="ext-meta">
           <span className="ext-dev">
