@@ -154,7 +154,10 @@ export default function App() {
           <div className="ext-title">
             <h1 className="ext-name">Tooltran</h1>
           </div>
-          <a className={`ext-cta${downloaded?' downloaded':''}`} href={`${import.meta.env.BASE_URL}tooltran.zip`} download onClick={()=>setDownloaded(true)}>{downloaded?'加到 Chrome':'下載安裝檔'}</a>
+          {downloaded
+            ? <a className="ext-cta downloaded" href="chrome://extensions/" target="_blank">加到 Chrome</a>
+            : <a className="ext-cta" href={`${import.meta.env.BASE_URL}tooltran.zip`} download onClick={()=>setDownloaded(true)}>下載安裝檔</a>
+          }
         </div>
         <div className="ext-meta">
           <span className="ext-dev tooltip-wrap">
