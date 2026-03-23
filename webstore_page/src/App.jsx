@@ -20,6 +20,8 @@ export default function App() {
   const [apiKeyOpen, setApiKeyOpen] = useState(false)
   const [apiKeyCopied, setApiKeyCopied] = useState(false)
   const [downloaded, setDownloaded] = useState(false)
+  const [installGuideOpen, setInstallGuideOpen] = useState(false)
+  const [extUrlCopied, setExtUrlCopied] = useState(false)
   const [demoOpen, setDemoOpen] = useState(false)
   const [searchActive, setSearchActive] = useState(false)
   const [searchText, setSearchText] = useState('')
@@ -155,7 +157,7 @@ export default function App() {
             <h1 className="ext-name">Tooltran</h1>
           </div>
           {downloaded
-            ? <a className="ext-cta downloaded" href="chrome://extensions/" target="_blank">加到 Chrome</a>
+            ? <button className="ext-cta downloaded" onClick={()=>{setInstallGuideOpen(true);setExtUrlCopied(false)}}>加到 Chrome</button>
             : <a className="ext-cta" href={`${import.meta.env.BASE_URL}tooltran.zip`} download onClick={()=>setDownloaded(true)}>下載安裝檔</a>
           }
         </div>
@@ -457,6 +459,28 @@ export default function App() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161l-1.97 9.281c-.146.658-.537.818-1.084.508l-3-2.211-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.538-.196 1.006.128.832.942z"/></svg>
           透過 Telegram 送出
         </a>
+      </div>
+    </>}
+
+    {/* INSTALL GUIDE MODAL */}
+    {installGuideOpen && <>
+      <div className="share-overlay" onClick={()=>setInstallGuideOpen(false)}/>
+      <div className="share-modal report-modal" style={{maxWidth:420}}>
+        <button className="share-close" onClick={()=>setInstallGuideOpen(false)}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <h3 className="share-title">安裝擴充功能</h3>
+        <p className="share-subtitle">請在瀏覽器網址列貼上以下網址</p>
+        <div style={{display:'flex',alignItems:'center',gap:8,background:'#f5f5f5',borderRadius:8,padding:'10px 12px',marginBottom:16}}>
+          <code style={{flex:1,fontSize:13,color:'#333',wordBreak:'break-all'}}>chrome://extensions/</code>
+          <button style={{background:extUrlCopied?'#4caf50':'var(--primary)',color:'#fff',border:'none',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:13,whiteSpace:'nowrap'}} onClick={()=>{navigator.clipboard.writeText('chrome://extensions/');setExtUrlCopied(true);setTimeout(()=>setExtUrlCopied(false),2000)}}>{extUrlCopied?'已複製':'複製'}</button>
+        </div>
+        <div style={{textAlign:'left',fontSize:13,lineHeight:1.8,color:'#555'}}>
+          <p style={{margin:'0 0 8px'}}>1. 複製上方網址，貼到瀏覽器網址列後按 Enter</p>
+          <p style={{margin:'0 0 8px'}}>2. 開啟右上角的「開發人員模式」</p>
+          <p style={{margin:'0 0 8px'}}>3. 將解壓縮後的資料夾拖曳到頁面中</p>
+          <p style={{margin:0}}>4. 安裝完成！</p>
+        </div>
       </div>
     </>}
 
