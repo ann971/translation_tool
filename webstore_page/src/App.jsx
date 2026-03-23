@@ -33,16 +33,25 @@ export default function App() {
   }, [reviewStars])
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const trackRef = useRef(null)
+  const viewportRef = useRef(null)
   const [transitioning, setTransitioning] = useState(false)
   // Slides: [last_clone, ...real, first_clone]
   const extSlides = [SHOTS[SHOTS.length - 1], ...SHOTS, SHOTS[0]]
   const [trackIdx, setTrackIdx] = useState(1) // start at first real slide
+  const [slideW, setSlideW] = useState(0)
 
-  const getSlideWidth = () => {
-    const el = trackRef.current
-    if (!el) return 400
-    return el.querySelector('.carousel-slide')?.offsetWidth + 16 || 400
-  }
+  // Measure slide width on mount and resize
+  useEffect(() => {
+    const measure = () => {
+      const vp = viewportRef.current
+      if (!vp) return
+      const w = (vp.offsetWidth - 16) / 2 // 2 slides visible, 16px gap
+      setSlideW(w + 16) // slide width + gap
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
 
   const goTo = (idx) => {
     setActiveSlide(idx)
@@ -62,21 +71,19 @@ export default function App() {
   const handleTransitionEnd = () => {
     setTransitioning(false)
     if (trackIdx === 0) {
-      // On last_clone → jump to real last
       trackRef.current.style.transition = 'none'
       setTrackIdx(SHOTS.length)
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          trackRef.current.style.transition = ''
+          if (trackRef.current) trackRef.current.style.transition = ''
         })
       })
     } else if (trackIdx === extSlides.length - 1) {
-      // On first_clone → jump to real first
       trackRef.current.style.transition = 'none'
       setTrackIdx(1)
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          trackRef.current.style.transition = ''
+          if (trackRef.current) trackRef.current.style.transition = ''
         })
       })
     }
@@ -179,10 +186,10 @@ export default function App() {
         <button className="carousel-arrow l" onClick={()=>scroll(-1)}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
         </button>
-        <div className="carousel-viewport">
-          <div className="carousel-track" ref={trackRef} style={{transform:`translateX(-${trackIdx * getSlideWidth()}px)`}} onTransitionEnd={handleTransitionEnd}>
+        <div className="carousel-viewport" ref={viewportRef}>
+          <div className="carousel-track" ref={trackRef} style={{transform:slideW?`translateX(-${trackIdx * slideW}px)`:undefined}} onTransitionEnd={handleTransitionEnd}>
             {extSlides.map((s,i)=>(
-              <div className="carousel-slide" key={i} onClick={()=>{const real=(i-1+SHOTS.length)%SHOTS.length;setLightbox(real)}} style={{cursor:'pointer'}}>
+              <div className="carousel-slide" key={i} onClick={()=>{const real=(i-1+SHOTS.length)%SHOTS.length;setLightbox(real)}} style={{cursor:'pointer',width:slideW?slideW-16:undefined,flexShrink:0}}>
                 <img className="carousel-img" src={`${import.meta.env.BASE_URL}${s.img}`} alt="" />
               </div>
             ))}
