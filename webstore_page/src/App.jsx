@@ -132,29 +132,7 @@ export default function App() {
               <div style={{color:'#999',fontSize:12,marginTop:8}}>Demo 用 API Key，請求量過高的話會停用</div>
             </div></>}
           </div>
-          <div style={{position:'relative'}}>
-            <button className="hbtn" onClick={()=>setDemoOpen(!demoOpen)}><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg></button>
-            {demoOpen && <><div className="overlay" onClick={()=>setDemoOpen(false)}></div>
-            <div className="popup" style={{right:0,left:'auto',width:420,maxHeight:'70vh',overflow:'auto'}}>
-              <h3 style={{margin:'0 0 16px',fontSize:16}}>📝 Demo Text</h3>
-              <div style={{marginBottom:16}}>
-                <div style={{fontWeight:600,color:'#1a73e8',marginBottom:6}}>English</div>
-                <p style={{fontSize:13,lineHeight:1.7,color:'#333',margin:0}}>The city never truly sleeps, yet somewhere beneath its concrete skin, nature persists. Roots crack through sidewalks, pigeons nest on steel beams, and rain transforms every gutter into a brief, rushing river. We build upward, believing we have escaped the wild — but the wild simply adapts, finding corners we forgot to seal.</p>
-              </div>
-              <div style={{marginBottom:16}}>
-                <div style={{fontWeight:600,color:'#1a73e8',marginBottom:6}}>繁體中文</div>
-                <p style={{fontSize:13,lineHeight:1.7,color:'#333',margin:0}}>城市的霓虹燈從不熄滅，但在那厚重的水泥之下，自然依然悄悄呼吸。野草從磚縫中探出頭來，燕子在老舊的屋簷下築巢，一場午後大雨便能讓整條街道化為流動的河川。我們以為高樓能將荒野隔絕在外，殊不知荒野早已悄悄住進了我們的城市。</p>
-              </div>
-              <div style={{marginBottom:16}}>
-                <div style={{fontWeight:600,color:'#1a73e8',marginBottom:6}}>Español</div>
-                <p style={{fontSize:13,lineHeight:1.7,color:'#333',margin:0}}>La ciudad cree que ha conquistado la naturaleza, pero se equivoca. Entre los edificios grises, los árboles doblan sus ramas con paciencia infinita. El viento lleva semillas a las terrazas más altas, y con cada tormenta, el río recuerda que el asfalto no es eterno. La naturaleza no pelea — simplemente espera.</p>
-              </div>
-              <div>
-                <div style={{fontWeight:600,color:'#1a73e8',marginBottom:6}}>한국어</div>
-                <p style={{fontSize:13,lineHeight:1.7,color:'#333',margin:0}}>도시는 결코 잠들지 않는다고 사람들은 말한다. 하지만 빽빽한 빌딩 사이로 바람은 여전히 불어오고, 틈새마다 작은 풀들이 고개를 내민다. 비가 내리는 날이면 회색빛 거리는 잠시 생기를 되찾는다. 자연은 우리가 만든 경계를 기억하지 않는다. 그저 조용히, 그러나 끊임없이 흘러들어올 뿐이다.</p>
-              </div>
-            </div></>}
-          </div>
+          <button className="hbtn" onClick={()=>setDemoOpen(true)}><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg></button>
           <div className="avatar">A</div>
         </div>
       </div>
@@ -479,6 +457,35 @@ export default function App() {
     </>}
 
     {/* LIGHTBOX */}
+    {demoOpen && <>
+      <div className="share-overlay" onClick={()=>setDemoOpen(false)}/>
+      <div className="share-modal report-modal" style={{maxWidth:500}}>
+        <button className="share-close" onClick={()=>setDemoOpen(false)}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <h3 className="share-title">📝 Demo Text</h3>
+        <p className="share-subtitle">選取以下文字來測試翻譯功能</p>
+        <div style={{maxHeight:'50vh',overflow:'auto',textAlign:'left'}}>
+          <div style={{marginBottom:16}}>
+            <div style={{fontWeight:600,color:'#1a73e8',marginBottom:6}}>English</div>
+            <p style={{fontSize:13,lineHeight:1.7,color:'#333',margin:0}}>The city never truly sleeps, yet somewhere beneath its concrete skin, nature persists. Roots crack through sidewalks, pigeons nest on steel beams, and rain transforms every gutter into a brief, rushing river. We build upward, believing we have escaped the wild — but the wild simply adapts, finding corners we forgot to seal.</p>
+          </div>
+          <div style={{marginBottom:16}}>
+            <div style={{fontWeight:600,color:'#1a73e8',marginBottom:6}}>繁體中文</div>
+            <p style={{fontSize:13,lineHeight:1.7,color:'#333',margin:0}}>城市的霓虹燈從不熄滅，但在那厚重的水泥之下，自然依然悄悄呼吸。野草從磚縫中探出頭來，燕子在老舊的屋簷下築巢，一場午後大雨便能讓整條街道化為流動的河川。我們以為高樓能將荒野隔絕在外，殊不知荒野早已悄悄住進了我們的城市。</p>
+          </div>
+          <div style={{marginBottom:16}}>
+            <div style={{fontWeight:600,color:'#1a73e8',marginBottom:6}}>Español</div>
+            <p style={{fontSize:13,lineHeight:1.7,color:'#333',margin:0}}>La ciudad cree que ha conquistado la naturaleza, pero se equivoca. Entre los edificios grises, los árboles doblan sus ramas con paciencia infinita. El viento lleva semillas a las terrazas más altas, y con cada tormenta, el río recuerda que el asfalto no es eterno. La naturaleza no pelea — simplemente espera.</p>
+          </div>
+          <div>
+            <div style={{fontWeight:600,color:'#1a73e8',marginBottom:6}}>한국어</div>
+            <p style={{fontSize:13,lineHeight:1.7,color:'#333',margin:0}}>도시는 결코 잠들지 않는다고 사람들은 말한다. 하지만 빽빽한 빌딩 사이로 바람은 여전히 불어오고, 틈새마다 작은 풀들이 고개를 내민다. 비가 내리는 날이면 회색빛 거리는 잠시 생기를 되찾는다. 자연은 우리가 만든 경계를 기억하지 않는다. 그저 조용히, 그러나 끊임없이 흘러들어올 뿐이다.</p>
+          </div>
+        </div>
+      </div>
+    </>}
+
     {lightbox >= 0 && <>
       <div className="lightbox-overlay" onClick={()=>setLightbox(-1)}>
         <button className="lightbox-close" onClick={()=>setLightbox(-1)}>
