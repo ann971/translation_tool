@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>如何找到 DeepL API Key</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font: 15px/1.8 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', Arial, sans-serif;
+      background: #f5f6f8;
+      color: #1a1a1a;
+      padding: 32px 16px;
+    }
+    .container { max-width: 600px; margin: 0 auto; }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #49b4e9;
+      text-decoration: none;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .back:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h1 .icon {
+      width: 36px; height: 36px;
+      background: #fff3e0;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+
+    .step {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,.06);
+      box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 6px 16px rgba(0,0,0,.05);
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .step-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .step-num {
+      width: 24px; height: 24px;
+      background: #49b4e9;
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .step p { color: #444; margin-bottom: 8px; }
+    .step ul { margin: 8px 0 8px 20px; color: #444; }
+    .step li { margin-bottom: 4px; }
+    .step a { color: #49b4e9; text-decoration: none; }
+    .step a:hover { text-decoration: underline; }
+
+    .link-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    .link-table th {
+      text-align: left;
+      padding: 8px 10px;
+      background: #f5f6f8;
+      border-radius: 6px 6px 0 0;
+      font-weight: 600;
+      color: #666;
+    }
+    .link-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .link-table td:first-child { color: #666; }
+
+    .warning {
+      background: #fffbf0;
+      border: 1px solid #ffe0a0;
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 16px;
+    }
+    .warning-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #e67e22;
+      margin-bottom: 10px;
+    }
+    .warning ol { margin-left: 18px; color: #555; }
+    .warning li { margin-bottom: 8px; }
+    .warning strong { color: #333; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="back" id="backBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      返回設定
+    </a>
+
+    <h1><span class="icon">🔑</span> 如何找到 DeepL API Key</h1>
+
+    <div class="step">
+      <div class="step-title"><span class="step-num">1</span>確認你註冊的是「API 帳號」</div>
+      <p>DeepL 有兩種帳號：</p>
+      <ul>
+        <li><strong>DeepL 翻譯器帳號</strong>（一般用戶）→ 沒有 API Key</li>
+        <li><strong>DeepL API 帳號</strong>（開發者用）→ 才有 API Key</li>
+      </ul>
+      <p>你必須到 <a href="https://www.deepl.com/pro-api" target="_blank">deepl.com/pro-api</a> 申請 API 方案（有免費版）。</p>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-num">2</span>找到 API Key 的位置</div>
+      <p>登入後，前往以下其中一個路徑：</p>
+      <table class="link-table">
+        <tr><th>方式</th><th>網址</th></tr>
+        <tr>
+          <td>直接進入 API Keys 頁面</td>
+          <td><a href="https://www.deepl.com/your-account/keys" target="_blank">deepl.com/your-account/keys</a></td>
+        </tr>
+        <tr>
+          <td>帳號摘要頁</td>
+          <td><a href="https://www.deepl.com/pro-account/summary" target="_blank">deepl.com/pro-account/summary</a></td>
+        </tr>
+      </table>
+      <p>API Key 在登入後的「API Keys & Limits」分頁中可以找到與管理。</p>
+    </div>
+
+    <div class="step">
+      <div class="step-title"><span class="step-num">3</span>複製 Key</div>
+      <p>基於安全考量，完整的 API Key 不會直接顯示在列表中，需要點擊「Copy」按鈕將 Key 複製到剪貼簿。</p>
+    </div>
+
+    <div class="warning">
+      <div class="warning-title">⚠️ 常見問題：為什麼看不到 Key？</div>
+      <ol>
+        <li><strong>用錯帳號類型</strong>：你可能註冊的是一般翻譯帳號，不是 API 帳號，需要另外申請 API 方案</li>
+        <li><strong>還沒建立 Key</strong>：你可以點擊「Create new key」來建立一組新的 API Key，建立後會跳出視窗讓你複製</li>
+        <li><strong>需要信用卡驗證</strong>：即使是免費方案，也需要輸入信用卡資料（僅作身份驗證用途）</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('backBtn').addEventListener('click', () => {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = 'options.html';
+      }
+    });
+  </script>
+</body>
+</html>
