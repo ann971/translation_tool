@@ -31,17 +31,40 @@ export default function App() {
   }, [reviewStars])
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const trackRef = useRef(null)
-  const scrollTo = idx => {
+  // offset=1 because we prepend a clone of the last slide
+  const scrollTo = (idx, wrap) => {
     const el = trackRef.current
     if (!el) return
     const w = el.querySelector('.carousel-slide')?.offsetWidth + 16 || 400
-    el.scrollTo({ left: idx * w, behavior: 'smooth' })
+    const realPos = (idx + 1) * w // +1 for prepended clone
+    if (wrap === 'forward') {
+      el.scrollTo({ left: (SHOTS.length + 1) * w, behavior: 'smooth' })
+      setTimeout(() => { el.scrollTo({ left: w, behavior: 'auto' }) }, 400)
+    } else if (wrap === 'backward') {
+      el.scrollTo({ left: 0, behavior: 'smooth' })
+      setTimeout(() => { el.scrollTo({ left: SHOTS.length * w, behavior: 'auto' }) }, 400)
+    } else {
+      el.scrollTo({ left: realPos, behavior: 'smooth' })
+    }
     setActiveSlide(idx)
   }
   const scroll = d => {
     const next = (activeSlide + d + SHOTS.length) % SHOTS.length
-    scrollTo(next)
+    if (d === 1 && activeSlide === SHOTS.length - 1) {
+      scrollTo(0, 'forward')
+    } else if (d === -1 && activeSlide === 0) {
+      scrollTo(SHOTS.length - 1, 'backward')
+    } else {
+      scrollTo(next)
+    }
   }
+  // Initialize scroll position to first real slide (after prepended clone)
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el) return
+    const w = el.querySelector('.carousel-slide')?.offsetWidth + 16 || 400
+    el.scrollTo({ left: w, behavior: 'auto' })
+  }, [])
 
   return <>
     {/* HEADER */}
@@ -130,8 +153,8 @@ export default function App() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
         </button>
         <div className="carousel-track" ref={trackRef}>
-          {[...SHOTS, SHOTS[0]].map((s,i)=>(
-            <div className="carousel-slide" key={i} onClick={()=>setLightbox(i % SHOTS.length)} style={{cursor:'pointer'}}>
+          {[SHOTS[SHOTS.length-1], ...SHOTS, SHOTS[0]].map((s,i)=>(
+            <div className="carousel-slide" key={i} onClick={()=>setLightbox((i - 1 + SHOTS.length) % SHOTS.length)} style={{cursor:'pointer'}}>
               <img className="carousel-img" src={`${import.meta.env.BASE_URL}${s.img}`} alt="" />
             </div>
           ))}
