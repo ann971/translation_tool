@@ -54,6 +54,8 @@
 .ext-name{font-size:32px;font-weight:600;color:var(--text);line-height:1.25;margin:0}
 .ext-cta{flex-shrink:0;height:38px;padding:0 24px;background:var(--primary);color:var(--on-primary);font-size:14px;font-weight:500;font-family:inherit;border:none;border-radius:20px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap;align-self:center;transition:background .2s,box-shadow .2s}
 .ext-cta:hover{background:#0842a0;box-shadow:0 1px 3px rgba(0,0,0,.2);text-decoration:none;color:var(--on-primary)}
+.ext-cta.downloaded{background:#2e7d32}
+.ext-cta.downloaded:hover{background:#1b5e20}
 
 /* Meta */
 .ext-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--text2);margin-bottom:10px}

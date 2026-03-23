@@ -19,6 +19,7 @@ export default function App() {
   const [hoverStar, setHoverStar] = useState(0)
   const [apiKeyOpen, setApiKeyOpen] = useState(false)
   const [apiKeyCopied, setApiKeyCopied] = useState(false)
+  const [downloaded, setDownloaded] = useState(false)
   const [demoOpen, setDemoOpen] = useState(false)
   const [searchActive, setSearchActive] = useState(false)
   const [searchText, setSearchText] = useState('')
@@ -153,7 +154,7 @@ export default function App() {
           <div className="ext-title">
             <h1 className="ext-name">Tooltran</h1>
           </div>
-          <a className="ext-cta" href={`${import.meta.env.BASE_URL}tooltran.zip`} download>加到 Chrome</a>
+          <a className={`ext-cta${downloaded?' downloaded':''}`} href={`${import.meta.env.BASE_URL}tooltran.zip`} download onClick={()=>setDownloaded(true)}>{downloaded?'加到 Chrome':'下載安裝檔'}</a>
         </div>
         <div className="ext-meta">
           <span className="ext-dev tooltip-wrap">
@@ -229,7 +230,7 @@ export default function App() {
             <p>在擴充功能選項中選擇您的目標語言。當選取的文字與目標語言屬於不同語系時，將自動翻譯為您設定的語言。</p>
             <h3>✦ 安裝教學</h3>
             <p>
-              1. 點擊上方「加到 Chrome」按鈕，下載 .zip 檔案並解壓縮<br/>
+              1. 點擊上方「下載安裝檔」按鈕，下載 .zip 檔案並解壓縮<br/>
               2. 開啟 Chrome，在網址列輸入 chrome://extensions/<br/>
               3. 開啟右上角「開發人員模式」開關<br/>
               4. 點擊「載入未封裝項目」，選取解壓縮後的 extensions 資料夾<br/>
