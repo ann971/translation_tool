@@ -6,7 +6,8 @@ const I18N = {
     proHint: "Pro 帳戶使用專屬線路",
     prefSection: "翻譯偏好", targetLabel: "目標語言", targetHint: "選取的文字若與目標語言相同則不會觸發翻譯",
     optCommon: "常用", optEurope: "歐洲語言", optOther: "其他",
-    save: "儲存設定", clear: "清除金鑰", toastSaved: "設定已儲存", toastCleared: "API Key 已清除"
+    save: "儲存設定", clear: "清除金鑰", toastSaved: "設定已儲存", toastCleared: "API Key 已清除",
+    guideLink: "如何取得 DeepL API Key？→"
   },
   "ZH-HANS": {
     title: "Tooltran 设置", subtitle: "选取文字即时翻译为目标语言",
@@ -14,7 +15,8 @@ const I18N = {
     proHint: "Pro 账户使用专属线路",
     prefSection: "翻译偏好", targetLabel: "目标语言", targetHint: "选取的文字若与目标语言相同则不会触发翻译",
     optCommon: "常用", optEurope: "欧洲语言", optOther: "其他",
-    save: "保存设置", clear: "清除密钥", toastSaved: "设置已保存", toastCleared: "API Key 已清除"
+    save: "保存设置", clear: "清除密钥", toastSaved: "设置已保存", toastCleared: "API Key 已清除",
+    guideLink: "如何获取 DeepL API Key？→"
   },
   EN: {
     title: "Tooltran Settings", subtitle: "Select text to instantly translate",
@@ -22,7 +24,8 @@ const I18N = {
     proHint: "Pro accounts use a dedicated endpoint",
     prefSection: "TRANSLATION", targetLabel: "Target Language", targetHint: "Translation won't trigger if text matches target language",
     optCommon: "Common", optEurope: "European", optOther: "Other",
-    save: "Save", clear: "Clear Key", toastSaved: "Settings saved", toastCleared: "API Key cleared"
+    save: "Save", clear: "Clear Key", toastSaved: "Settings saved", toastCleared: "API Key cleared",
+    guideLink: "How to find your DeepL API Key? →"
   },
   JA: {
     title: "Tooltran 設定", subtitle: "テキストを選択して即座に翻訳",
@@ -30,7 +33,8 @@ const I18N = {
     proHint: "Pro アカウントは専用エンドポイントを使用",
     prefSection: "翻訳設定", targetLabel: "ターゲット言語", targetHint: "選択テキストがターゲット言語と同じ場合は翻訳されません",
     optCommon: "よく使う", optEurope: "ヨーロッパ言語", optOther: "その他",
-    save: "保存", clear: "キーを消去", toastSaved: "設定を保存しました", toastCleared: "API Key を消去しました"
+    save: "保存", clear: "キーを消去", toastSaved: "設定を保存しました", toastCleared: "API Key を消去しました",
+    guideLink: "DeepL API Key の取得方法 →"
   },
   KO: {
     title: "Tooltran 설정", subtitle: "텍스트를 선택하면 즉시 번역",
@@ -38,7 +42,8 @@ const I18N = {
     proHint: "Pro 계정은 전용 엔드포인트 사용",
     prefSection: "번역 설정", targetLabel: "대상 언어", targetHint: "선택한 텍스트가 대상 언어와 같으면 번역되지 않습니다",
     optCommon: "자주 사용", optEurope: "유럽어", optOther: "기타",
-    save: "저장", clear: "키 삭제", toastSaved: "설정이 저장되었습니다", toastCleared: "API Key가 삭제되었습니다"
+    save: "저장", clear: "키 삭제", toastSaved: "설정이 저장되었습니다", toastCleared: "API Key가 삭제되었습니다",
+    guideLink: "DeepL API Key 찾는 방법 →"
   },
   FR: {
     title: "Paramètres Tooltran", subtitle: "Sélectionnez du texte pour traduire instantanément",
@@ -46,7 +51,8 @@ const I18N = {
     proHint: "Les comptes Pro utilisent un point d'accès dédié",
     prefSection: "TRADUCTION", targetLabel: "Langue cible", targetHint: "La traduction ne se déclenche pas si le texte correspond à la langue cible",
     optCommon: "Courant", optEurope: "Européen", optOther: "Autre",
-    save: "Enregistrer", clear: "Effacer la clé", toastSaved: "Paramètres enregistrés", toastCleared: "Clé API effacée"
+    save: "Enregistrer", clear: "Effacer la clé", toastSaved: "Paramètres enregistrés", toastCleared: "Clé API effacée",
+    guideLink: "Comment trouver votre clé API DeepL ? →"
   },
   DE: {
     title: "Tooltran Einstellungen", subtitle: "Text auswählen und sofort übersetzen",
@@ -54,7 +60,8 @@ const I18N = {
     proHint: "Pro-Konten nutzen einen dedizierten Endpunkt",
     prefSection: "ÜBERSETZUNG", targetLabel: "Zielsprache", targetHint: "Keine Übersetzung wenn Text der Zielsprache entspricht",
     optCommon: "Häufig", optEurope: "Europäisch", optOther: "Andere",
-    save: "Speichern", clear: "Schlüssel löschen", toastSaved: "Einstellungen gespeichert", toastCleared: "API-Schlüssel gelöscht"
+    save: "Speichern", clear: "Schlüssel löschen", toastSaved: "Einstellungen gespeichert", toastCleared: "API-Schlüssel gelöscht",
+    guideLink: "Wie finde ich meinen DeepL API-Schlüssel? →"
   },
   ES: {
     title: "Configuración de Tooltran", subtitle: "Selecciona texto para traducir al instante",
@@ -62,7 +69,8 @@ const I18N = {
     proHint: "Las cuentas Pro usan un endpoint dedicado",
     prefSection: "TRADUCCIÓN", targetLabel: "Idioma destino", targetHint: "No se traduce si el texto coincide con el idioma destino",
     optCommon: "Comunes", optEurope: "Europeos", optOther: "Otros",
-    save: "Guardar", clear: "Borrar clave", toastSaved: "Configuración guardada", toastCleared: "Clave API borrada"
+    save: "Guardar", clear: "Borrar clave", toastSaved: "Configuración guardada", toastCleared: "Clave API borrada",
+    guideLink: "¿Cómo obtener tu clave API de DeepL? →"
   },
   RU: {
     title: "Настройки Tooltran", subtitle: "Выделите текст для мгновенного перевода",
@@ -70,7 +78,8 @@ const I18N = {
     proHint: "Pro-аккаунты используют выделенный эндпоинт",
     prefSection: "ПЕРЕВОД", targetLabel: "Целевой язык", targetHint: "Перевод не запускается, если текст совпадает с целевым языком",
     optCommon: "Часто используемые", optEurope: "Европейские", optOther: "Другие",
-    save: "Сохранить", clear: "Удалить ключ", toastSaved: "Настройки сохранены", toastCleared: "API-ключ удалён"
+    save: "Сохранить", clear: "Удалить ключ", toastSaved: "Настройки сохранены", toastCleared: "API-ключ удалён",
+    guideLink: "Как получить API-ключ DeepL? →"
   }
 };
 
