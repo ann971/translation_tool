@@ -175,6 +175,10 @@
 
 /* ============ REPORT MODAL ============ */
 .report-modal{max-width:420px}
+.report-modal ::-webkit-scrollbar{width:6px}
+.report-modal ::-webkit-scrollbar-track{background:transparent}
+.report-modal ::-webkit-scrollbar-thumb{background:#d0d0d0;border-radius:3px}
+.report-modal ::-webkit-scrollbar-thumb:hover{background:#aaa}
 .report-textarea{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:14px;font-family:inherit;resize:vertical;outline:none;margin-bottom:16px}
 .report-textarea:focus{border-color:var(--primary)}
 .report-submit{display:inline-flex;align-items:center;gap:8px;background:#0088cc;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;justify-content:center;width:100%}
