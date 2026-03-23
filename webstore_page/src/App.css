@@ -31,7 +31,8 @@
 .header-search-clear:hover{background:#f1f3f4}
 .header-right{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:auto}
 .hbtn{width:40px;height:40px;border-radius:50%;border:none;background:transparent;display:flex;align-items:center;justify-content:center;color:var(--text2);cursor:pointer}
-.hbtn:hover{background:#f1f3f4}
+.hbtn:hover:not(.static){background:#f1f3f4}
+.hbtn.static{cursor:default}
 .hbtn svg{width:22px;height:22px}
 .avatar{width:32px;height:32px;border-radius:50%;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;margin-left:8px}
 
@@ -78,9 +79,9 @@
 
 /* ============ CAROUSEL ============ */
 .carousel{position:relative;margin:0 -24px;padding:0 24px}
-.carousel-track{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;scroll-behavior:smooth}
-.carousel-track::-webkit-scrollbar{display:none}
-.carousel-slide{flex:0 0 calc(50% - 8px);scroll-snap-align:start;aspect-ratio:16/10;background:var(--bg-light);border-radius:12px;border:1px solid #e8eaed;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.carousel-viewport{overflow:hidden;position:relative}
+.carousel-track{display:flex;gap:16px;transition:transform .4s ease}
+.carousel-slide{flex:0 0 calc(50% - 8px);aspect-ratio:16/10;background:var(--bg-light);border-radius:12px;border:1px solid #e8eaed;display:flex;align-items:center;justify-content:center;overflow:hidden}
 @media(max-width:600px){.carousel-slide{flex:0 0 100%}}
 .carousel-img{width:100%;height:100%;object-fit:cover;display:block}
 .carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:var(--surface);border:none;box-shadow:0 1px 3px 1px rgba(0,0,0,.15),0 1px 2px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;color:var(--text)}
@@ -206,3 +207,5 @@
 .lightbox-prev{left:16px}
 .lightbox-next{right:16px}
 .lightbox-counter{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;font-size:14px;background:rgba(0,0,0,.5);padding:6px 16px;border-radius:20px;z-index:402;cursor:default}
+.overlay{position:fixed;inset:0;z-index:150}
+.apikey-popup{position:absolute;right:0;top:100%;margin-top:8px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.15);padding:16px 20px;min-width:320px;z-index:200}

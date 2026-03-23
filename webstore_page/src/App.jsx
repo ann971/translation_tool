@@ -17,6 +17,8 @@ export default function App() {
   const [reviewStars, setReviewStars] = useState(5)
   const [reviewText, setReviewText] = useState('')
   const [hoverStar, setHoverStar] = useState(0)
+  const [apiKeyOpen, setApiKeyOpen] = useState(false)
+  const [apiKeyCopied, setApiKeyCopied] = useState(false)
   const [searchActive, setSearchActive] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [lightbox, setLightbox] = useState(-1)
@@ -31,40 +33,54 @@ export default function App() {
   }, [reviewStars])
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
   const trackRef = useRef(null)
-  // offset=1 because we prepend a clone of the last slide
-  const scrollTo = (idx, wrap) => {
+  const [transitioning, setTransitioning] = useState(false)
+  // Slides: [last_clone, ...real, first_clone]
+  const extSlides = [SHOTS[SHOTS.length - 1], ...SHOTS, SHOTS[0]]
+  const [trackIdx, setTrackIdx] = useState(1) // start at first real slide
+
+  const getSlideWidth = () => {
     const el = trackRef.current
-    if (!el) return
-    const w = el.querySelector('.carousel-slide')?.offsetWidth + 16 || 400
-    const realPos = (idx + 1) * w // +1 for prepended clone
-    if (wrap === 'forward') {
-      el.scrollTo({ left: (SHOTS.length + 1) * w, behavior: 'smooth' })
-      setTimeout(() => { el.scrollTo({ left: w, behavior: 'auto' }) }, 400)
-    } else if (wrap === 'backward') {
-      el.scrollTo({ left: 0, behavior: 'smooth' })
-      setTimeout(() => { el.scrollTo({ left: SHOTS.length * w, behavior: 'auto' }) }, 400)
-    } else {
-      el.scrollTo({ left: realPos, behavior: 'smooth' })
-    }
+    if (!el) return 400
+    return el.querySelector('.carousel-slide')?.offsetWidth + 16 || 400
+  }
+
+  const goTo = (idx) => {
     setActiveSlide(idx)
+    setTrackIdx(idx + 1) // +1 for prepended clone
   }
+
   const scroll = d => {
+    if (transitioning) return
+    const newTrackIdx = trackIdx + d
+    setTransitioning(true)
+    setTrackIdx(newTrackIdx)
     const next = (activeSlide + d + SHOTS.length) % SHOTS.length
-    if (d === 1 && activeSlide === SHOTS.length - 1) {
-      scrollTo(0, 'forward')
-    } else if (d === -1 && activeSlide === 0) {
-      scrollTo(SHOTS.length - 1, 'backward')
-    } else {
-      scrollTo(next)
+    setActiveSlide(next)
+  }
+
+  // After transition ends, if we're on a clone, jump to real slide instantly
+  const handleTransitionEnd = () => {
+    setTransitioning(false)
+    if (trackIdx === 0) {
+      // On last_clone → jump to real last
+      trackRef.current.style.transition = 'none'
+      setTrackIdx(SHOTS.length)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          trackRef.current.style.transition = ''
+        })
+      })
+    } else if (trackIdx === extSlides.length - 1) {
+      // On first_clone → jump to real first
+      trackRef.current.style.transition = 'none'
+      setTrackIdx(1)
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          trackRef.current.style.transition = ''
+        })
+      })
     }
   }
-  // Initialize scroll position to first real slide (after prepended clone)
-  useEffect(() => {
-    const el = trackRef.current
-    if (!el) return
-    const w = el.querySelector('.carousel-slide')?.offsetWidth + 16 || 400
-    el.scrollTo({ left: w, behavior: 'auto' })
-  }, [])
 
   return <>
     {/* HEADER */}
@@ -96,8 +112,19 @@ export default function App() {
           )}
         </div>
         <div className="header-right">
-          <button className="hbtn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
-          <button className="hbtn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg></button>
+          <div style={{position:'relative'}}>
+            <button className="hbtn" onClick={()=>setApiKeyOpen(!apiKeyOpen)}><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
+            {apiKeyOpen && <><div className="overlay" onClick={()=>{setApiKeyOpen(false);setApiKeyCopied(false)}}></div>
+            <div className="apikey-popup">
+              <div style={{fontWeight:600,marginBottom:8}}>DeepL API Key :</div>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <code style={{background:'#f5f5f5',padding:'6px 10px',borderRadius:6,fontSize:13,wordBreak:'break-all',flex:1}}>d90b9909-ba23-4d52-9a55-e144f321756e:fx</code>
+                <button style={{background:apiKeyCopied?'#4caf50':'var(--primary)',color:'#fff',border:'none',borderRadius:6,padding:'6px 12px',cursor:'pointer',fontSize:13,whiteSpace:'nowrap'}} onClick={()=>{navigator.clipboard.writeText('d90b9909-ba23-4d52-9a55-e144f321756e:fx');setApiKeyCopied(true);setTimeout(()=>setApiKeyCopied(false),2000)}}>{apiKeyCopied?'已複製':'複製'}</button>
+              </div>
+              <div style={{color:'#999',fontSize:12,marginTop:8}}>Demo 用 API Key，請求量過高的話會停用</div>
+            </div></>}
+          </div>
+          <div className="hbtn static"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg></div>
           <div className="avatar">A</div>
         </div>
       </div>
@@ -152,12 +179,14 @@ export default function App() {
         <button className="carousel-arrow l" onClick={()=>scroll(-1)}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
         </button>
-        <div className="carousel-track" ref={trackRef}>
-          {[SHOTS[SHOTS.length-1], ...SHOTS, SHOTS[0]].map((s,i)=>(
-            <div className="carousel-slide" key={i} onClick={()=>setLightbox((i - 1 + SHOTS.length) % SHOTS.length)} style={{cursor:'pointer'}}>
-              <img className="carousel-img" src={`${import.meta.env.BASE_URL}${s.img}`} alt="" />
-            </div>
-          ))}
+        <div className="carousel-viewport">
+          <div className="carousel-track" ref={trackRef} style={{transform:`translateX(-${trackIdx * getSlideWidth()}px)`}} onTransitionEnd={handleTransitionEnd}>
+            {extSlides.map((s,i)=>(
+              <div className="carousel-slide" key={i} onClick={()=>{const real=(i-1+SHOTS.length)%SHOTS.length;setLightbox(real)}} style={{cursor:'pointer'}}>
+                <img className="carousel-img" src={`${import.meta.env.BASE_URL}${s.img}`} alt="" />
+              </div>
+            ))}
+          </div>
         </div>
         <button className="carousel-arrow r" onClick={()=>scroll(1)}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
@@ -165,7 +194,7 @@ export default function App() {
       </div>
       <div className="thumbs">
         {SHOTS.map((s,i)=>(
-          <div key={i} className={`thumb${i===activeSlide?' on':''}`} onClick={()=>scrollTo(i)}>
+          <div key={i} className={`thumb${i===activeSlide?' on':''}`} onClick={()=>goTo(i)}>
             <img src={`${import.meta.env.BASE_URL}${s.img}`} alt="" />
           </div>
         ))}
