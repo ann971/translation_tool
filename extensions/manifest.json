@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tooltran",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "選取文字→浮動按鈕→滑入自動以 DeepL 翻譯為目標語言。",
   "icons": {
     "16": "icons/icon16.png",

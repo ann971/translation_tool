@@ -303,6 +303,20 @@ const delay = (ms) => new Promise(r => setTimeout(r, ms));
 
 // =================== 漫畫 OCR + 翻譯 ===================
 
+async function callOcrSpace(base64Image, apiKey, language, engine) {
+  const formData = new FormData();
+  formData.append("base64Image", base64Image);
+  formData.append("apikey", apiKey);
+  formData.append("language", language);
+  formData.append("scale", "true");
+  formData.append("OCREngine", engine);
+  formData.append("isOverlayRequired", "true");
+
+  const resp = await fetch(OCR_ENDPOINT, { method: "POST", body: formData });
+  if (!resp.ok) throw new Error(`OCR.space 回應錯誤（${resp.status}）`);
+  return await resp.json();
+}
+
 async function ocrAndTranslateGroups(base64Image) {
   const {
     ocrApiKey = "",
@@ -322,20 +336,16 @@ async function ocrAndTranslateGroups(base64Image) {
 
   const effectiveOcrKey = ocrApiKey.trim() || "helloworld";
 
-  // 1. OCR.space 辨識
-  const formData = new FormData();
-  formData.append("base64Image", base64Image);
-  formData.append("apikey", effectiveOcrKey);
-  formData.append("language", ocrSourceLang);
-  formData.append("scale", "true");
-  formData.append("OCREngine", "2");
-  formData.append("isOverlayRequired", "true");
+  // 1. OCR.space 辨識：先試 Engine 2（較準），遇 E500/資源耗盡自動降級到 Engine 1
+  let ocrData = await callOcrSpace(base64Image, effectiveOcrKey, ocrSourceLang, "2");
 
-  const ocrResp = await fetch(OCR_ENDPOINT, { method: "POST", body: formData });
-  if (!ocrResp.ok) {
-    throw new Error(`OCR.space 回應錯誤（${ocrResp.status}）`);
+  if (ocrData.IsErroredOnProcessing) {
+    const firstErr = Array.isArray(ocrData.ErrorMessage) ? ocrData.ErrorMessage[0] : (ocrData.ErrorMessage || "");
+    // E500 / System Resource Exhaustion / OCR Binary Failed → 改用 Engine 1 再試一次
+    if (/E500|Resource Exhaustion|Binary Failed|timed out/i.test(firstErr)) {
+      ocrData = await callOcrSpace(base64Image, effectiveOcrKey, ocrSourceLang, "1");
+    }
   }
-  const ocrData = await ocrResp.json();
 
   if (ocrData.IsErroredOnProcessing) {
     const errMsg = Array.isArray(ocrData.ErrorMessage) ? ocrData.ErrorMessage[0] : (ocrData.ErrorMessage || "未知錯誤");

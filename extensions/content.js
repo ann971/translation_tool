@@ -537,10 +537,10 @@
       return;
     }
 
-    // 把 dataUrl 畫進 canvas，根據 DPR 裁切
-    let croppedBase64;
+    // 把 dataUrl 畫進 canvas，根據 DPR 裁切（含等比縮放以壓在 OCR.space 1MB 上限內）
+    let cropResult;
     try {
-      croppedBase64 = await cropFromDataUrl(captureResp.dataUrl, viewportRect);
+      cropResult = await cropFromDataUrl(captureResp.dataUrl, viewportRect);
     } catch (err) {
       replaceFloatingOverlay(`❌ 裁切失敗：${err.message}`);
       return;
@@ -550,7 +550,7 @@
 
     let ocrResp;
     try {
-      ocrResp = await sendMessage({ type: "OCR_TRANSLATE", imageBase64: croppedBase64 });
+      ocrResp = await sendMessage({ type: "OCR_TRANSLATE", imageBase64: cropResult.dataUrl });
     } catch (err) {
       replaceFloatingOverlay(`❌ 傳訊失敗：${err.message}`);
       return;
@@ -567,7 +567,7 @@
     }
 
     clearFloatingOverlay();
-    renderTranslationOverlays(groups, cropOrigin, viewportRect);
+    renderTranslationOverlays(groups, cropOrigin, viewportRect, cropResult.scale);
   }
 
   function cropFromDataUrl(dataUrl, viewportRect){
@@ -581,14 +581,25 @@
           const sw = Math.min(img.width  - sx, Math.floor(viewportRect.width  * dpr));
           const sh = Math.min(img.height - sy, Math.floor(viewportRect.height * dpr));
           if (sw <= 0 || sh <= 0) { reject(new Error("範圍無效")); return; }
+
+          // 限制最長邊 1600px，避免 OCR.space 免費額度的 1MB 上限
+          // （Retina 螢幕大範圍框選很容易爆）
+          const MAX_SIDE = 1600;
+          const scale = Math.min(1, MAX_SIDE / Math.max(sw, sh));
+          const dw = Math.round(sw * scale);
+          const dh = Math.round(sh * scale);
+
           const canvas = document.createElement("canvas");
-          canvas.width = sw;
-          canvas.height = sh;
+          canvas.width = dw;
+          canvas.height = dh;
           const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
           // OCR.space 要求完整 data URL 格式（data:image/jpeg;base64,...），不可只傳純 base64
-          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
-          resolve(dataUrl);
+          // 品質降到 0.75 減少 payload，OCR 對文字清晰度敏感度沒那麼高
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
+          resolve({ dataUrl, scale });
         } catch (e) { reject(e); }
       };
       img.onerror = () => reject(new Error("圖片載入失敗"));
@@ -596,10 +607,11 @@
     });
   }
 
-  function renderTranslationOverlays(groups, cropOrigin, viewportRect){
-    // OCR 座標以原圖 pixel 為基準；捕獲影像 = CSS px × DPR
-    // 所以 OCR 座標直接除以 DPR 才會對到 CSS px（相對裁切區左上角）
+  function renderTranslationOverlays(groups, cropOrigin, viewportRect, downscale){
+    // OCR 座標以「送進 OCR 的圖片」pixel 為基準；該圖 = 擷取影像(CSS×DPR) × downscale
+    // 所以反推 CSS px：OCR 座標 / (DPR × downscale)
     const dpr = window.devicePixelRatio || 1;
+    const scale = dpr * (downscale || 1);
 
     for (const g of groups) {
       const overlay = document.createElement("div");
@@ -612,10 +624,10 @@
         overlay.style.top  = "50%";
         overlay.style.left = "50%";
       } else {
-        const cssLeft = cropOrigin.pageX + (g.left   / dpr);
-        const cssTop  = cropOrigin.pageY + (g.top    / dpr);
-        const cssW    = Math.max(40, g.width  / dpr);
-        const cssH    = Math.max(24, g.height / dpr);
+        const cssLeft = cropOrigin.pageX + (g.left   / scale);
+        const cssTop  = cropOrigin.pageY + (g.top    / scale);
+        const cssW    = Math.max(40, g.width  / scale);
+        const cssH    = Math.max(24, g.height / scale);
         overlay.style.left   = `${cssLeft}px`;
         overlay.style.top    = `${cssTop}px`;
         overlay.style.width  = `${cssW}px`;
