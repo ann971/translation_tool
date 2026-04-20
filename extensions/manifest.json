@@ -22,7 +22,10 @@
   "options_page": "options.html",
   "commands": {
     "start-cropping": {
-      "suggested_key": { "default": "Alt+A" },
+      "suggested_key": {
+        "default": "Ctrl+Shift+A",
+        "mac": "MacCtrl+Shift+A"
+      },
       "description": "開始框選漫畫翻譯"
     }
   },

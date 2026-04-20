@@ -9,7 +9,7 @@ const I18N = {
     save: "儲存設定", clear: "清除金鑰", toastSaved: "設定已儲存", toastCleared: "API Key 已清除",
     guideLink: "如何取得 DeepL API Key？→",
     ocrSection: "漫畫翻譯 (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "申請免費 OCR.space Key →",
-    ocrLangLabel: "OCR 來源語言", ocrHint: "辨識後使用 DeepL 翻譯為上方目標語言。快捷鍵：Alt + A",
+    ocrLangLabel: "OCR 來源語言", ocrHint: "辨識後使用 DeepL 翻譯為上方目標語言。快捷鍵：Ctrl + Shift + A",
     startCrop: "開始框選漫畫翻譯", toastCropUnsupported: "此頁面不支援框選（如 chrome:// 內部頁）"
   },
   "ZH-HANS": {
@@ -21,7 +21,7 @@ const I18N = {
     save: "保存设置", clear: "清除密钥", toastSaved: "设置已保存", toastCleared: "API Key 已清除",
     guideLink: "如何获取 DeepL API Key？→",
     ocrSection: "漫画翻译 (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "申请免费 OCR.space Key →",
-    ocrLangLabel: "OCR 源语言", ocrHint: "识别后使用 DeepL 翻译为上方目标语言。快捷键：Alt + A",
+    ocrLangLabel: "OCR 源语言", ocrHint: "识别后使用 DeepL 翻译为上方目标语言。快捷键：Ctrl + Shift + A",
     startCrop: "开始框选漫画翻译", toastCropUnsupported: "此页面不支持框选（如 chrome:// 内部页）"
   },
   EN: {
@@ -33,7 +33,7 @@ const I18N = {
     save: "Save", clear: "Clear Key", toastSaved: "Settings saved", toastCleared: "API Key cleared",
     guideLink: "How to find your DeepL API Key? →",
     ocrSection: "Manga Translation (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "Get a free OCR.space Key →",
-    ocrLangLabel: "OCR Source Language", ocrHint: "Recognised text is translated via DeepL to your target language. Shortcut: Alt + A",
+    ocrLangLabel: "OCR Source Language", ocrHint: "Recognised text is translated via DeepL to your target language. Shortcut: Ctrl + Shift + A",
     startCrop: "Start Manga Crop", toastCropUnsupported: "This page doesn't support cropping (e.g. chrome:// pages)"
   },
   JA: {
@@ -45,7 +45,7 @@ const I18N = {
     save: "保存", clear: "キーを消去", toastSaved: "設定を保存しました", toastCleared: "API Key を消去しました",
     guideLink: "DeepL API Key の取得方法 →",
     ocrSection: "マンガ翻訳 (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "無料の OCR.space Key を取得 →",
-    ocrLangLabel: "OCR 元言語", ocrHint: "認識後に DeepL でターゲット言語へ翻訳。ショートカット：Alt + A",
+    ocrLangLabel: "OCR 元言語", ocrHint: "認識後に DeepL でターゲット言語へ翻訳。ショートカット：Ctrl + Shift + A",
     startCrop: "マンガ枠選択を開始", toastCropUnsupported: "このページでは枠選択できません（chrome:// など）"
   },
   KO: {
