@@ -10,6 +10,7 @@ const I18N = {
     guideLink: "如何取得 DeepL API Key？→",
     ocrSection: "漫畫翻譯 (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "申請免費 OCR.space Key →",
     ocrLangLabel: "OCR 來源語言", ocrHint: "辨識後使用 DeepL 翻譯為上方目標語言。快捷鍵：Ctrl + Shift + A",
+    verticalLabel: "直書文字（日漫）", verticalHint: "開啟後自動旋轉圖片，提升直排日文辨識率",
     startCrop: "開始框選漫畫翻譯", toastCropUnsupported: "此頁面不支援框選（如 chrome:// 內部頁）"
   },
   "ZH-HANS": {
@@ -22,6 +23,7 @@ const I18N = {
     guideLink: "如何获取 DeepL API Key？→",
     ocrSection: "漫画翻译 (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "申请免费 OCR.space Key →",
     ocrLangLabel: "OCR 源语言", ocrHint: "识别后使用 DeepL 翻译为上方目标语言。快捷键：Ctrl + Shift + A",
+    verticalLabel: "竖排文字（日漫）", verticalHint: "开启后自动旋转图片，提升竖排日文识别率",
     startCrop: "开始框选漫画翻译", toastCropUnsupported: "此页面不支持框选（如 chrome:// 内部页）"
   },
   EN: {
@@ -34,6 +36,7 @@ const I18N = {
     guideLink: "How to find your DeepL API Key? →",
     ocrSection: "Manga Translation (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "Get a free OCR.space Key →",
     ocrLangLabel: "OCR Source Language", ocrHint: "Recognised text is translated via DeepL to your target language. Shortcut: Ctrl + Shift + A",
+    verticalLabel: "Vertical Text (Manga)", verticalHint: "Rotates the image automatically for better vertical-text recognition",
     startCrop: "Start Manga Crop", toastCropUnsupported: "This page doesn't support cropping (e.g. chrome:// pages)"
   },
   JA: {
@@ -46,6 +49,7 @@ const I18N = {
     guideLink: "DeepL API Key の取得方法 →",
     ocrSection: "マンガ翻訳 (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "無料の OCR.space Key を取得 →",
     ocrLangLabel: "OCR 元言語", ocrHint: "認識後に DeepL でターゲット言語へ翻訳。ショートカット：Ctrl + Shift + A",
+    verticalLabel: "縦書き文字（マンガ）", verticalHint: "画像を自動回転して縦書き認識率を向上させます",
     startCrop: "マンガ枠選択を開始", toastCropUnsupported: "このページでは枠選択できません（chrome:// など）"
   },
   KO: {
@@ -159,9 +163,15 @@ function detectDefaultLang() {
     status.textContent = on ? "ON" : "OFF";
     status.className = "toggle-status " + (on ? "on" : "off");
   }
+  function updateVerticalStatus() {
+    const on = $("ocrVerticalMode").checked;
+    const status = $("verticalStatus");
+    status.textContent = on ? "ON" : "OFF";
+    status.className = "toggle-status " + (on ? "on" : "off");
+  }
 
   // 不設預設值，讓 undefined 代表「從未儲存過」
-  const saved = await chrome.storage.sync.get(["deeplApiKey", "useDeepLPro", "targetLang", "ocrApiKey", "ocrSourceLang"]);
+  const saved = await chrome.storage.sync.get(["deeplApiKey", "useDeepLPro", "targetLang", "ocrApiKey", "ocrSourceLang", "ocrVerticalMode"]);
 
   // 若從未設定過 targetLang，使用瀏覽器語言
   if (!saved.targetLang) {
@@ -175,7 +185,9 @@ function detectDefaultLang() {
   $("targetLang").value = saved.targetLang;
   $("ocrApiKey").value = saved.ocrApiKey || "";
   $("ocrSourceLang").value = saved.ocrSourceLang || "jpn";
+  $("ocrVerticalMode").checked = saved.ocrVerticalMode || false;
   updateProStatus();
+  updateVerticalStatus();
   applyI18n(currentLang);
 
   // 切換目標語言時即時更新 UI 語系
@@ -192,14 +204,23 @@ function detectDefaultLang() {
   });
   $("useDeepLPro").addEventListener("change", updateProStatus);
 
+  // 點擊整列切換直書模式
+  $("verticalRow").addEventListener("click", (e) => {
+    if (e.target.closest("label")) return;
+    $("ocrVerticalMode").checked = !$("ocrVerticalMode").checked;
+    updateVerticalStatus();
+  });
+  $("ocrVerticalMode").addEventListener("change", updateVerticalStatus);
+
   $("save").addEventListener("click", async () => {
     const deeplApiKey = $("deeplApiKey").value.trim();
     const useDeepLPro = $("useDeepLPro").checked;
     const targetLang = $("targetLang").value;
     const ocrApiKey = $("ocrApiKey").value.trim();
     const ocrSourceLang = $("ocrSourceLang").value;
+    const ocrVerticalMode = $("ocrVerticalMode").checked;
     currentLang = targetLang;
-    await chrome.storage.sync.set({ deeplApiKey, useDeepLPro, targetLang, ocrApiKey, ocrSourceLang });
+    await chrome.storage.sync.set({ deeplApiKey, useDeepLPro, targetLang, ocrApiKey, ocrSourceLang, ocrVerticalMode });
     toast("toastSaved");
   });
 

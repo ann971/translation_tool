@@ -523,6 +523,13 @@
       return;
     }
 
+    // 讀直書模式設定（每次框選即時讀取，讓使用者可隨時在側邊欄切換）
+    let verticalMode = false;
+    try {
+      const cfg = await chrome.storage.sync.get({ ocrVerticalMode: false });
+      verticalMode = !!cfg.ocrVerticalMode;
+    } catch { /* 讀不到就當 false */ }
+
     showFloatingOverlay("🔍 擷取畫面中…");
 
     let captureResp;
@@ -540,7 +547,7 @@
     // 把 dataUrl 畫進 canvas，根據 DPR 裁切（含等比縮放以壓在 OCR.space 1MB 上限內）
     let cropResult;
     try {
-      cropResult = await cropFromDataUrl(captureResp.dataUrl, viewportRect);
+      cropResult = await cropFromDataUrl(captureResp.dataUrl, viewportRect, verticalMode);
     } catch (err) {
       replaceFloatingOverlay(`❌ 裁切失敗：${err.message}`);
       return;
@@ -567,10 +574,29 @@
     }
 
     clearFloatingOverlay();
-    renderTranslationOverlays(groups, cropOrigin, viewportRect, cropResult.scale);
+
+    // 直書模式：OCR 座標在「旋轉後圖像」空間，需反旋轉回原圖（pre-rotation canvas）空間
+    const finalGroups = cropResult.vertical
+      ? groups.map(g => unrotateGroup(g, cropResult.preRotHeight))
+      : groups;
+
+    renderTranslationOverlays(finalGroups, cropOrigin, viewportRect, cropResult.scale);
   }
 
-  function cropFromDataUrl(dataUrl, viewportRect){
+  // 旋轉 90° CW 的反變換：(r_x, r_y) → (r_y, preRotHeight - 1 - r_x)
+  // 對 bbox：src_left = ocr_top; src_top = preRotHeight - (ocr_left + ocr_w); 長寬互換
+  function unrotateGroup(g, preRotHeight){
+    if (g.left == null) return g; // fallback 整段情況沒座標
+    return {
+      ...g,
+      left:   g.top,
+      top:    preRotHeight - (g.left + g.width),
+      width:  g.height,
+      height: g.width
+    };
+  }
+
+  function cropFromDataUrl(dataUrl, viewportRect, vertical){
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
@@ -586,20 +612,41 @@
           // （Retina 螢幕大範圍框選很容易爆）
           const MAX_SIDE = 1600;
           const scale = Math.min(1, MAX_SIDE / Math.max(sw, sh));
-          const dw = Math.round(sw * scale);
-          const dh = Math.round(sh * scale);
+          const dw = Math.round(sw * scale);  // pre-rotation 寬
+          const dh = Math.round(sh * scale);  // pre-rotation 高
 
           const canvas = document.createElement("canvas");
-          canvas.width = dw;
-          canvas.height = dh;
-          const ctx = canvas.getContext("2d");
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = "high";
-          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
+          const ctx2dOpts = { willReadFrequently: false };
+
+          if (vertical) {
+            // 旋轉 90° CW：輸出 canvas 尺寸 (dh, dw)，讓直書變橫書給 OCR 讀
+            canvas.width  = dh;
+            canvas.height = dw;
+            const ctx = canvas.getContext("2d", ctx2dOpts);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
+            ctx.translate(canvas.width, 0);
+            ctx.rotate(Math.PI / 2);
+            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
+          } else {
+            canvas.width  = dw;
+            canvas.height = dh;
+            const ctx = canvas.getContext("2d", ctx2dOpts);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
+          }
+
           // OCR.space 要求完整 data URL 格式（data:image/jpeg;base64,...），不可只傳純 base64
-          // 品質降到 0.75 減少 payload，OCR 對文字清晰度敏感度沒那麼高
+          // 品質 0.75 壓 payload，OCR 對文字清晰度沒那麼敏感
           const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
-          resolve({ dataUrl, scale });
+          resolve({
+            dataUrl,
+            scale,
+            vertical: !!vertical,
+            preRotWidth:  dw,   // pre-rotation 寬（座標反旋轉時要用）
+            preRotHeight: dh    // pre-rotation 高
+          });
         } catch (e) { reject(e); }
       };
       img.onerror = () => reject(new Error("圖片載入失敗"));
