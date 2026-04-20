@@ -7,7 +7,10 @@ const I18N = {
     prefSection: "翻譯偏好", targetLabel: "目標語言", targetHint: "選取的文字若與目標語言相同則不會觸發翻譯",
     optCommon: "常用", optEurope: "歐洲語言", optOther: "其他",
     save: "儲存設定", clear: "清除金鑰", toastSaved: "設定已儲存", toastCleared: "API Key 已清除",
-    guideLink: "如何取得 DeepL API Key？→"
+    guideLink: "如何取得 DeepL API Key？→",
+    ocrSection: "漫畫翻譯 (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "申請免費 OCR.space Key →",
+    ocrLangLabel: "OCR 來源語言", ocrHint: "辨識後使用 DeepL 翻譯為上方目標語言。快捷鍵：Alt + A",
+    startCrop: "開始框選漫畫翻譯", toastCropUnsupported: "此頁面不支援框選（如 chrome:// 內部頁）"
   },
   "ZH-HANS": {
     title: "Tooltran 设置", subtitle: "选取文字即时翻译为目标语言",
@@ -16,7 +19,10 @@ const I18N = {
     prefSection: "翻译偏好", targetLabel: "目标语言", targetHint: "选取的文字若与目标语言相同则不会触发翻译",
     optCommon: "常用", optEurope: "欧洲语言", optOther: "其他",
     save: "保存设置", clear: "清除密钥", toastSaved: "设置已保存", toastCleared: "API Key 已清除",
-    guideLink: "如何获取 DeepL API Key？→"
+    guideLink: "如何获取 DeepL API Key？→",
+    ocrSection: "漫画翻译 (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "申请免费 OCR.space Key →",
+    ocrLangLabel: "OCR 源语言", ocrHint: "识别后使用 DeepL 翻译为上方目标语言。快捷键：Alt + A",
+    startCrop: "开始框选漫画翻译", toastCropUnsupported: "此页面不支持框选（如 chrome:// 内部页）"
   },
   EN: {
     title: "Tooltran Settings", subtitle: "Select text to instantly translate",
@@ -25,7 +31,10 @@ const I18N = {
     prefSection: "TRANSLATION", targetLabel: "Target Language", targetHint: "Translation won't trigger if text matches target language",
     optCommon: "Common", optEurope: "European", optOther: "Other",
     save: "Save", clear: "Clear Key", toastSaved: "Settings saved", toastCleared: "API Key cleared",
-    guideLink: "How to find your DeepL API Key? →"
+    guideLink: "How to find your DeepL API Key? →",
+    ocrSection: "Manga Translation (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "Get a free OCR.space Key →",
+    ocrLangLabel: "OCR Source Language", ocrHint: "Recognised text is translated via DeepL to your target language. Shortcut: Alt + A",
+    startCrop: "Start Manga Crop", toastCropUnsupported: "This page doesn't support cropping (e.g. chrome:// pages)"
   },
   JA: {
     title: "Tooltran 設定", subtitle: "テキストを選択して即座に翻訳",
@@ -34,7 +43,10 @@ const I18N = {
     prefSection: "翻訳設定", targetLabel: "ターゲット言語", targetHint: "選択テキストがターゲット言語と同じ場合は翻訳されません",
     optCommon: "よく使う", optEurope: "ヨーロッパ言語", optOther: "その他",
     save: "保存", clear: "キーを消去", toastSaved: "設定を保存しました", toastCleared: "API Key を消去しました",
-    guideLink: "DeepL API Key の取得方法 →"
+    guideLink: "DeepL API Key の取得方法 →",
+    ocrSection: "マンガ翻訳 (OCR)", ocrKeyLabel: "OCR.space API Key", ocrKeyLink: "無料の OCR.space Key を取得 →",
+    ocrLangLabel: "OCR 元言語", ocrHint: "認識後に DeepL でターゲット言語へ翻訳。ショートカット：Alt + A",
+    startCrop: "マンガ枠選択を開始", toastCropUnsupported: "このページでは枠選択できません（chrome:// など）"
   },
   KO: {
     title: "Tooltran 설정", subtitle: "텍스트를 선택하면 즉시 번역",
@@ -149,7 +161,7 @@ function detectDefaultLang() {
   }
 
   // 不設預設值，讓 undefined 代表「從未儲存過」
-  const saved = await chrome.storage.sync.get(["deeplApiKey", "useDeepLPro", "targetLang"]);
+  const saved = await chrome.storage.sync.get(["deeplApiKey", "useDeepLPro", "targetLang", "ocrApiKey", "ocrSourceLang"]);
 
   // 若從未設定過 targetLang，使用瀏覽器語言
   if (!saved.targetLang) {
@@ -161,6 +173,8 @@ function detectDefaultLang() {
   $("deeplApiKey").value = saved.deeplApiKey || "";
   $("useDeepLPro").checked = saved.useDeepLPro || false;
   $("targetLang").value = saved.targetLang;
+  $("ocrApiKey").value = saved.ocrApiKey || "";
+  $("ocrSourceLang").value = saved.ocrSourceLang || "jpn";
   updateProStatus();
   applyI18n(currentLang);
 
@@ -182,8 +196,10 @@ function detectDefaultLang() {
     const deeplApiKey = $("deeplApiKey").value.trim();
     const useDeepLPro = $("useDeepLPro").checked;
     const targetLang = $("targetLang").value;
+    const ocrApiKey = $("ocrApiKey").value.trim();
+    const ocrSourceLang = $("ocrSourceLang").value;
     currentLang = targetLang;
-    await chrome.storage.sync.set({ deeplApiKey, useDeepLPro, targetLang });
+    await chrome.storage.sync.set({ deeplApiKey, useDeepLPro, targetLang, ocrApiKey, ocrSourceLang });
     toast("toastSaved");
   });
 
@@ -191,5 +207,30 @@ function detectDefaultLang() {
     await chrome.storage.sync.set({ deeplApiKey: "" });
     $("deeplApiKey").value = "";
     toast("toastCleared");
+  });
+
+  // 開始框選漫畫翻譯：傳訊給當前分頁的 content.js
+  $("startCropBtn").addEventListener("click", async () => {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab?.id) { toast("toastCropUnsupported"); return; }
+      if (tab.url && (tab.url.startsWith("chrome://") || tab.url.startsWith("edge://"))) {
+        toast("toastCropUnsupported");
+        return;
+      }
+      try {
+        await chrome.tabs.sendMessage(tab.id, { type: "START_CROPPING" });
+      } catch (err) {
+        if (err?.message && err.message.includes("Receiving end does not exist")) {
+          await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["content.js"] });
+          await chrome.tabs.sendMessage(tab.id, { type: "START_CROPPING" });
+        } else {
+          throw err;
+        }
+      }
+    } catch (e) {
+      console.warn("[Tooltran] 啟動框選失敗：", e?.message);
+      toast("toastCropUnsupported");
+    }
   });
 })();

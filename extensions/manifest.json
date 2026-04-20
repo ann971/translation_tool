@@ -13,12 +13,19 @@
   "host_permissions": [
     "https://api-free.deepl.com/*",
     "https://api.deepl.com/*",
-    "https://api.dictionaryapi.dev/*"
+    "https://api.dictionaryapi.dev/*",
+    "https://api.ocr.space/*"
   ],
   "background": { "service_worker": "background.js", "type": "module" },
   "action": { "default_title": "Tooltran" },
   "side_panel": { "default_path": "options.html" },
   "options_page": "options.html",
+  "commands": {
+    "start-cropping": {
+      "suggested_key": { "default": "Alt+A" },
+      "description": "開始框選漫畫翻譯"
+    }
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -28,6 +35,6 @@
     }
   ],
   "web_accessible_resources": [
-    { "resources": ["content.css"], "matches": ["<all_urls>"] }
+    { "resources": ["content.css", "deepl.svg"], "matches": ["<all_urls>"] }
   ]
 }

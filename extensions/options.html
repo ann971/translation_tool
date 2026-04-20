@@ -304,6 +304,44 @@
         </div>
       </div>
 
+      <!-- Manga OCR -->
+      <div class="card">
+        <div class="card-title" data-i18n="ocrSection">漫畫翻譯 (OCR)</div>
+        <div class="field">
+          <div class="field-icon key">📖</div>
+          <div class="field-body">
+            <div class="field-label" data-i18n="ocrKeyLabel">OCR.space API Key</div>
+            <input id="ocrApiKey" type="password" placeholder="空白即用公共 helloworld 金鑰" autocomplete="off" />
+            <div style="margin-top:6px;">
+              <a href="https://ocr.space/ocrapi/freekey" target="_blank" rel="noopener"
+                 style="font-size:12px;color:#49b4e9;text-decoration:none;" data-i18n="ocrKeyLink">
+                申請免費 OCR.space Key →
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-icon lang">🈳</div>
+          <div class="field-body">
+            <div class="field-label" data-i18n="ocrLangLabel">OCR 來源語言</div>
+            <select id="ocrSourceLang">
+              <option value="jpn">日文 (Japanese)</option>
+              <option value="kor">韓文 (Korean)</option>
+              <option value="eng">英文 (English)</option>
+              <option value="chs">簡體中文</option>
+              <option value="cht">繁體中文</option>
+              <option value="auto">自動偵測</option>
+            </select>
+            <div class="field-hint" style="margin-top:6px;" data-i18n="ocrHint">辨識後使用 DeepL 翻譯為上方目標語言。快捷鍵：Alt + A</div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-body">
+            <button id="startCropBtn" class="btn-primary" style="width:100%;" data-i18n="startCrop">開始框選漫畫翻譯</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Actions -->
       <div class="card">
         <div class="actions">

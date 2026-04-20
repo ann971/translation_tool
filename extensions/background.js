@@ -5,11 +5,37 @@
 const DEEPL_FREE_ENDPOINT = "https://api-free.deepl.com/v2/translate";
 const DEEPL_PRO_ENDPOINT  = "https://api.deepl.com/v2/translate";
 const DICT_ENDPOINT        = "https://api.dictionaryapi.dev/api/v2/entries";
+const OCR_ENDPOINT         = "https://api.ocr.space/parse/image";
 
 // 點擊工具列圖示 → 開啟側邊欄
 chrome.action.onClicked.addListener((tab) => {
   chrome.sidePanel.open({ tabId: tab.id });
 });
+
+// 快捷鍵 Alt+A → 通知 content.js 啟動框選模式
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command !== "start-cropping") return;
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id) return;
+  if (tab.url && (tab.url.startsWith("chrome://") || tab.url.startsWith("edge://"))) return;
+  dispatchStartCropping(tab.id);
+});
+
+async function dispatchStartCropping(tabId) {
+  try {
+    await chrome.tabs.sendMessage(tabId, { type: "START_CROPPING" });
+  } catch (err) {
+    // content script 尚未注入（例如 extension 剛安裝／更新）→ 嘗試動態注入後重送
+    if (err?.message && err.message.includes("Receiving end does not exist")) {
+      try {
+        await chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] });
+        await chrome.tabs.sendMessage(tabId, { type: "START_CROPPING" });
+      } catch (e) {
+        console.warn("[Tooltran] 無法啟動框選：", e.message);
+      }
+    }
+  }
+}
 
 // content 要設定值時，統一由 background 讀 storage
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -29,6 +55,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message?.type === "TRANSLATE_REQUEST") {
     handleTranslate(message.text)
+      .then(result => sendResponse({ ok: true, result }))
+      .catch(err => sendResponse({ ok: false, error: { message: err.message }}));
+    return true;
+  }
+
+  // 漫畫框選：要求 background 擷取當前可見分頁為 PNG dataUrl
+  if (message?.type === "CAPTURE_VISIBLE_TAB") {
+    const windowId = sender?.tab?.windowId;
+    chrome.tabs.captureVisibleTab(windowId ?? null, { format: "png" }, (dataUrl) => {
+      if (chrome.runtime.lastError) {
+        sendResponse({ ok: false, error: { message: chrome.runtime.lastError.message }});
+      } else {
+        sendResponse({ ok: true, dataUrl });
+      }
+    });
+    return true;
+  }
+
+  // 漫畫框選：base64 JPEG → OCR → DeepL → 回傳含座標的翻譯群組
+  if (message?.type === "OCR_TRANSLATE") {
+    ocrAndTranslateGroups(message.imageBase64)
       .then(result => sendResponse({ ok: true, result }))
       .catch(err => sendResponse({ ok: false, error: { message: err.message }}));
     return true;
@@ -253,3 +300,152 @@ async function fetchWithRetry(url, init, retries = 2) {
   }
 }
 const delay = (ms) => new Promise(r => setTimeout(r, ms));
+
+// =================== 漫畫 OCR + 翻譯 ===================
+
+async function ocrAndTranslateGroups(base64Image) {
+  const {
+    ocrApiKey = "",
+    ocrSourceLang = "jpn",
+    deeplApiKey = "",
+    useDeepLPro = false,
+    targetLang = "ZH-HANT"
+  } = await chrome.storage.sync.get({
+    ocrApiKey: "",
+    ocrSourceLang: "jpn",
+    deeplApiKey: "",
+    useDeepLPro: false,
+    targetLang: "ZH-HANT"
+  });
+
+  if (!deeplApiKey) throw new Error("尚未設定 DeepL API Key。");
+
+  const effectiveOcrKey = ocrApiKey.trim() || "helloworld";
+
+  // 1. OCR.space 辨識
+  const formData = new FormData();
+  formData.append("base64Image", base64Image);
+  formData.append("apikey", effectiveOcrKey);
+  formData.append("language", ocrSourceLang);
+  formData.append("scale", "true");
+  formData.append("OCREngine", "2");
+  formData.append("isOverlayRequired", "true");
+
+  const ocrResp = await fetch(OCR_ENDPOINT, { method: "POST", body: formData });
+  if (!ocrResp.ok) {
+    throw new Error(`OCR.space 回應錯誤（${ocrResp.status}）`);
+  }
+  const ocrData = await ocrResp.json();
+
+  if (ocrData.IsErroredOnProcessing) {
+    const errMsg = Array.isArray(ocrData.ErrorMessage) ? ocrData.ErrorMessage[0] : (ocrData.ErrorMessage || "未知錯誤");
+    throw new Error(`OCR 辨識失敗：${errMsg}`);
+  }
+
+  const parsed = ocrData.ParsedResults?.[0];
+  if (!parsed) {
+    throw new Error("OCR 無結果，請確認 API Key 或框選範圍。");
+  }
+
+  // 2. 分群
+  let groups = [];
+  if (parsed.TextOverlay?.Lines?.length) {
+    groups = groupLines(parsed.TextOverlay.Lines);
+  }
+
+  // 沒有座標資訊 → 退回整段文字 + 無座標
+  if (groups.length === 0) {
+    const fullText = (parsed.ParsedText || "").replace(/\r?\n|\r/g, " ").trim();
+    if (!fullText) throw new Error("無法辨識出有效文字。");
+    groups = [{ text: fullText, left: null, top: null, width: null, height: null }];
+  }
+
+  // 3. 批次 DeepL 翻譯（一次請求，省額度）
+  const texts = groups.map(g => g.text);
+  const { texts: translated } = await batchTranslateDeepL(texts, deeplApiKey, useDeepLPro, targetLang);
+
+  groups.forEach((g, i) => {
+    g.translatedText = translated[i] ?? g.text;
+  });
+
+  return { groups };
+}
+
+// 簡易兩階段叢集：先以 2.5× 行高合併相鄰行，再以 3.5× 行高合併鄰近群組
+function groupLines(lines) {
+  const groups = [];
+
+  for (const line of lines) {
+    if (!line.Words || line.Words.length === 0) continue;
+
+    let minL = Infinity, minT = Infinity, maxR = -Infinity, maxB = -Infinity;
+    for (const w of line.Words) {
+      if (w.Left < minL) minL = w.Left;
+      if (w.Top  < minT) minT = w.Top;
+      if (w.Left + w.Width  > maxR) maxR = w.Left + w.Width;
+      if (w.Top  + w.Height > maxB) maxB = w.Top  + w.Height;
+    }
+    if (minL === Infinity) continue;
+
+    const lineObj = {
+      text: line.LineText,
+      left: minL, top: minT, right: maxR, bottom: maxB,
+      width: maxR - minL, height: maxB - minT
+    };
+
+    let added = false;
+    for (const group of groups) {
+      const threshold = lineObj.height * 2.5;
+      const distLR = Math.max(0, Math.max(group.left - lineObj.right, lineObj.left - group.right));
+      const distTB = Math.max(0, Math.max(group.top - lineObj.bottom, lineObj.top - group.bottom));
+      if (distLR < threshold && distTB < threshold) {
+        group.lines.push(lineObj);
+        group.left   = Math.min(group.left,   lineObj.left);
+        group.top    = Math.min(group.top,    lineObj.top);
+        group.right  = Math.max(group.right,  lineObj.right);
+        group.bottom = Math.max(group.bottom, lineObj.bottom);
+        added = true;
+        break;
+      }
+    }
+    if (!added) {
+      groups.push({
+        lines: [lineObj],
+        left: lineObj.left, top: lineObj.top,
+        right: lineObj.right, bottom: lineObj.bottom
+      });
+    }
+  }
+
+  // 第二階段：合併靠太近的相鄰群組（大氣泡常被拆成多群）
+  let merged = true;
+  while (merged) {
+    merged = false;
+    outer:
+    for (let i = 0; i < groups.length; i++) {
+      for (let j = i + 1; j < groups.length; j++) {
+        const g1 = groups[i], g2 = groups[j];
+        const avgH = (g1.bottom - g1.top + g2.bottom - g2.top) / 2;
+        const threshold = avgH * 3.5;
+        const distLR = Math.max(0, Math.max(g1.left - g2.right, g2.left - g1.right));
+        const distTB = Math.max(0, Math.max(g1.top - g2.bottom, g2.top - g1.bottom));
+        if (distLR < threshold && distTB < threshold) {
+          g1.lines.push(...g2.lines);
+          g1.left   = Math.min(g1.left,   g2.left);
+          g1.top    = Math.min(g1.top,    g2.top);
+          g1.right  = Math.max(g1.right,  g2.right);
+          g1.bottom = Math.max(g1.bottom, g2.bottom);
+          groups.splice(j, 1);
+          merged = true;
+          break outer;
+        }
+      }
+    }
+  }
+
+  return groups.map(g => ({
+    text: g.lines.map(l => l.text).join(" "),
+    left: g.left, top: g.top,
+    width: g.right - g.left, height: g.bottom - g.top
+  }));
+}

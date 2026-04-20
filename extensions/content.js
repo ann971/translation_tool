@@ -8,7 +8,15 @@
     anchorRange: null,      // 目前選取的錨點 range（即時取座標）
     hoverTimer: null,
     panelPinned: false,     // 被拖曳後設 true；下次開啟恢復 false
-    targetLang: "ZH-HANT"  // 快取目標語言，用於客戶端語系過濾
+    targetLang: "ZH-HANT", // 快取目標語言，用於客戶端語系過濾
+    // --- 漫畫框選 ---
+    croppingActive: false,
+    cropStart: null,        // {x, y} viewport 座標
+    cropNodes: null,        // { dim, rect, hint }
+    translationOverlays: [],// 已顯示的翻譯覆蓋 DOM 陣列
+    scrollAccumSinceOverlay: 0,
+    lastScrollY: 0,
+    toastTimer: null
   };
 
   // ---- 載入目標語言設定
@@ -91,11 +99,76 @@
     .ai-pos{margin-top:10px; font-weight:600; font-size:12px; color:#49b4e9; text-transform:capitalize;}
     .ai-def-list{margin:4px 0 0 20px; padding:0;}
     .ai-def-list li{margin:2px 0; font-size:14px; line-height:1.5;}
-    .ai-tools{display:flex; gap:8px;}
+    .ai-tools{display:flex; align-items:center; gap:8px;}
     .ai-icon{cursor:pointer; opacity:.85;} .ai-icon:hover{opacity:1;}
+    .ai-deepl-link{
+      display:inline-flex; align-items:center; gap:3px;
+      font-size:11px; color:#0f2b46; text-decoration:none;
+      background:#f0f6fa; border-radius:6px; padding:2px 8px;
+      font-weight:600; line-height:1; transition:background .15s;
+    }
+    .ai-deepl-link:hover{background:#daeaf4;}
+    .ai-deepl-logo{width:14px;height:14px;}
     .ai-spinner{display:flex;align-items:center;justify-content:center;padding:8px 0;}
     .ai-spinner svg{width:24px;height:24px;animation:ai-spin .8s linear infinite;color:#49b4e9;}
     @keyframes ai-spin{to{transform:rotate(360deg);}}
+
+    /* ---- 漫畫框選 UI ---- */
+    .tt-crop-dim{
+      position:fixed; inset:0; background:rgba(0,0,0,.4);
+      cursor:crosshair; z-index:2147483647;
+    }
+    .tt-crop-rect{
+      position:fixed; border:2px dashed #49b4e9;
+      background:rgba(73,180,233,.12); pointer-events:none;
+      z-index:2147483647; display:none;
+    }
+    .tt-crop-hint{
+      position:fixed; top:12px; left:50%; transform:translateX(-50%);
+      background:rgba(0,0,0,.75); color:#fff; padding:6px 14px;
+      border-radius:999px; font-size:13px; font-weight:500;
+      pointer-events:none; z-index:2147483647; user-select:none;
+    }
+    .tt-trans-overlay{
+      position:absolute; background:#fff; color:#111;
+      border:1px solid rgba(0,0,0,.15); border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,.18);
+      padding:6px 8px;
+      display:flex; align-items:center; justify-content:center;
+      text-align:center; line-height:1.25; overflow:hidden;
+      font-weight:600; z-index:2147483646;
+      animation:tt-fade-in .15s ease-out;
+    }
+    .tt-trans-overlay .tt-trans-text{ width:100%; }
+    .tt-trans-close{
+      position:absolute; top:-8px; right:-8px;
+      width:18px; height:18px; background:#e53935; color:#fff;
+      border-radius:50%; display:flex; align-items:center;
+      justify-content:center; font-size:11px; line-height:1;
+      cursor:pointer; opacity:0; transition:opacity .15s;
+      z-index:2147483647;
+    }
+    .tt-trans-overlay:hover .tt-trans-close{ opacity:1; }
+    .tt-trans-floating{
+      position:fixed; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      max-width:min(560px,calc(100vw - 48px));
+      padding:14px 18px; font-size:15px;
+    }
+    @keyframes tt-fade-in{ from{opacity:0; transform:scale(.96);} to{opacity:1; transform:scale(1);} }
+
+    /* ---- Toast（通用提示） ---- */
+    .tt-toast{
+      position:fixed; bottom:32px; left:50%;
+      transform:translateX(-50%) translateY(80px);
+      background:#1a1a1a; color:#fff;
+      padding:10px 20px; border-radius:10px;
+      font-size:13px; font-weight:500;
+      pointer-events:none; opacity:0;
+      transition:transform .3s cubic-bezier(.22,1,.36,1), opacity .3s;
+      z-index:2147483647; max-width:80vw; text-align:center;
+    }
+    .tt-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
   `;
   shadow.appendChild(style);
 
@@ -109,7 +182,12 @@
   panel.innerHTML = `
     <div class="ai-panel-header" id="ai-header">
       <div class="ai-title">Tooltran</div>
-      <div class="ai-tools"><span class="ai-icon" id="ai-close" title="關閉">✖</span></div>
+      <div class="ai-tools">
+        <a class="ai-deepl-link" id="ai-deepl" href="#" target="_blank" rel="noopener" title="用 DeepL 翻譯">
+          <img class="ai-deepl-logo" src="${chrome.runtime.getURL("deepl.svg")}" alt="DeepL">DeepL
+        </a>
+        <span class="ai-icon" id="ai-close" title="關閉">✖</span>
+      </div>
     </div>
     <div class="ai-body" id="ai-body"></div>
   `;
@@ -193,6 +271,13 @@
   // ---- 事件：關閉面板
   shadow.getElementById("ai-close").addEventListener("click", hideAll);
 
+  // ---- 事件：DeepL 翻譯連結（動態更新 href，靠原生 <a target="_blank"> 開新分頁）
+  const deeplLink = shadow.getElementById("ai-deepl");
+  deeplLink.addEventListener("mousedown", () => {
+    const text = state.selectionText || "";
+    deeplLink.href = `https://www.deepl.com/translator#auto/auto/${encodeURIComponent(text)}`;
+  });
+
   // ---- 面板拖曳（拖 header）
   const header = shadow.getElementById("ai-header");
   let dragStart = null; // {x,y,left,top}
@@ -220,6 +305,7 @@
 
   // =================== 核心邏輯 ===================
   function updateSelection(){
+    if (state.croppingActive) return; // 框選中禁用選字 UI
     const sel = window.getSelection();
     if(!sel || sel.isCollapsed){ hideAll(); return; }
 
@@ -318,6 +404,314 @@
     if (panel.style.display === "block" && !state.panelPinned) placePanel(rect);
   }
 
-  // （可選）點空白關閉
-  document.addEventListener("mousedown", (e)=>{ if(!shadow.contains(e.target)) hideAll(); }, true);
+  // （可選）點空白關閉（框選中不處理）
+  document.addEventListener("mousedown", (e)=>{
+    if (state.croppingActive) return;
+    if(!shadow.contains(e.target)) hideAll();
+  }, true);
+
+  // =================== 漫畫框選 + OCR 翻譯 ===================
+
+  // 背景傳訊：啟動框選
+  if (window.chrome && chrome.runtime && chrome.runtime.onMessage) {
+    chrome.runtime.onMessage.addListener((msg) => {
+      if (msg?.type === "START_CROPPING") {
+        beginCropping();
+      }
+    });
+  }
+
+  // 累計滾動距離：覆蓋存在時超過 500px 自動清除，避免跟圖片脫離位置
+  window.addEventListener("scroll", () => {
+    if (state.translationOverlays.length === 0) return;
+    const dy = Math.abs(window.scrollY - state.lastScrollY);
+    state.lastScrollY = window.scrollY;
+    state.scrollAccumSinceOverlay += dy;
+    if (state.scrollAccumSinceOverlay > 500) clearTranslationOverlays();
+  }, true);
+
+  function beginCropping(){
+    if (state.croppingActive) return;
+    hideAll(); // 先關掉選字面板
+    clearTranslationOverlays();
+
+    const dim  = document.createElement("div"); dim.className  = "tt-crop-dim";
+    const rect = document.createElement("div"); rect.className = "tt-crop-rect";
+    const hint = document.createElement("div"); hint.className = "tt-crop-hint";
+    hint.textContent = "拖曳以框選對話框 — 按 ESC 取消";
+    shadow.appendChild(dim);
+    shadow.appendChild(rect);
+    shadow.appendChild(hint);
+
+    state.cropNodes = { dim, rect, hint };
+    state.cropStart = null;
+    state.croppingActive = true;
+
+    dim.addEventListener("mousedown", onCropMouseDown, true);
+    window.addEventListener("mousemove", onCropMouseMove, true);
+    window.addEventListener("mouseup",   onCropMouseUp,   true);
+    window.addEventListener("keydown",   onCropKeyDown,   true);
+  }
+
+  function exitCropping(){
+    if (!state.croppingActive) return;
+    const { dim, rect, hint } = state.cropNodes || {};
+    if (dim)  dim.remove();
+    if (rect) rect.remove();
+    if (hint) hint.remove();
+    window.removeEventListener("mousemove", onCropMouseMove, true);
+    window.removeEventListener("mouseup",   onCropMouseUp,   true);
+    window.removeEventListener("keydown",   onCropKeyDown,   true);
+    state.croppingActive = false;
+    state.cropNodes = null;
+    state.cropStart = null;
+  }
+
+  function onCropMouseDown(e){
+    if (e.button !== 0) return;
+    e.preventDefault(); e.stopPropagation();
+    state.cropStart = { x: e.clientX, y: e.clientY };
+    const r = state.cropNodes.rect;
+    r.style.left = `${e.clientX}px`;
+    r.style.top  = `${e.clientY}px`;
+    r.style.width = "0px";
+    r.style.height = "0px";
+    r.style.display = "block";
+  }
+
+  function onCropMouseMove(e){
+    if (!state.cropStart) return;
+    const r = state.cropNodes.rect;
+    const left = Math.min(state.cropStart.x, e.clientX);
+    const top  = Math.min(state.cropStart.y, e.clientY);
+    const w = Math.abs(e.clientX - state.cropStart.x);
+    const h = Math.abs(e.clientY - state.cropStart.y);
+    r.style.left = `${left}px`;
+    r.style.top  = `${top}px`;
+    r.style.width  = `${w}px`;
+    r.style.height = `${h}px`;
+  }
+
+  function onCropMouseUp(e){
+    if (!state.cropStart) { exitCropping(); return; }
+    const start = state.cropStart;
+    const end   = { x: e.clientX, y: e.clientY };
+    const rect = {
+      left:   Math.min(start.x, end.x),
+      top:    Math.min(start.y, end.y),
+      width:  Math.abs(end.x - start.x),
+      height: Math.abs(end.y - start.y)
+    };
+    exitCropping();
+    if (rect.width < 8 || rect.height < 8) return; // 太小視為取消
+    finishCrop(rect);
+  }
+
+  function onCropKeyDown(e){
+    if (e.key === "Escape") { e.preventDefault(); exitCropping(); }
+  }
+
+  async function finishCrop(viewportRect){
+    // 記錄框選視窗座標 + 當下 scroll，讓翻譯氣泡能定位到頁面絕對座標
+    const cropOrigin = {
+      pageX: viewportRect.left + window.scrollX,
+      pageY: viewportRect.top  + window.scrollY
+    };
+
+    if (!(window.chrome && chrome.runtime && chrome.runtime.id)) {
+      showToast("❌ 無法連線到擴充功能環境");
+      return;
+    }
+
+    showFloatingOverlay("🔍 擷取畫面中…");
+
+    let captureResp;
+    try {
+      captureResp = await sendMessage({ type: "CAPTURE_VISIBLE_TAB" });
+    } catch (err) {
+      replaceFloatingOverlay(`❌ 擷取失敗：${err.message}`);
+      return;
+    }
+    if (!captureResp?.ok) {
+      replaceFloatingOverlay(`❌ ${captureResp?.error?.message || "此頁面無法擷取畫面"}`);
+      return;
+    }
+
+    // 把 dataUrl 畫進 canvas，根據 DPR 裁切
+    let croppedBase64;
+    try {
+      croppedBase64 = await cropFromDataUrl(captureResp.dataUrl, viewportRect);
+    } catch (err) {
+      replaceFloatingOverlay(`❌ 裁切失敗：${err.message}`);
+      return;
+    }
+
+    replaceFloatingOverlay("🌐 OCR 與翻譯中…");
+
+    let ocrResp;
+    try {
+      ocrResp = await sendMessage({ type: "OCR_TRANSLATE", imageBase64: croppedBase64 });
+    } catch (err) {
+      replaceFloatingOverlay(`❌ 傳訊失敗：${err.message}`);
+      return;
+    }
+    if (!ocrResp?.ok) {
+      replaceFloatingOverlay(`❌ ${ocrResp?.error?.message || "翻譯失敗"}`);
+      return;
+    }
+
+    const groups = ocrResp.result?.groups || [];
+    if (groups.length === 0) {
+      replaceFloatingOverlay("（沒有辨識到文字）");
+      return;
+    }
+
+    clearFloatingOverlay();
+    renderTranslationOverlays(groups, cropOrigin, viewportRect);
+  }
+
+  function cropFromDataUrl(dataUrl, viewportRect){
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const dpr = window.devicePixelRatio || 1;
+          const sx = Math.max(0, Math.floor(viewportRect.left * dpr));
+          const sy = Math.max(0, Math.floor(viewportRect.top  * dpr));
+          const sw = Math.min(img.width  - sx, Math.floor(viewportRect.width  * dpr));
+          const sh = Math.min(img.height - sy, Math.floor(viewportRect.height * dpr));
+          if (sw <= 0 || sh <= 0) { reject(new Error("範圍無效")); return; }
+          const canvas = document.createElement("canvas");
+          canvas.width = sw;
+          canvas.height = sh;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+          const b64 = canvas.toDataURL("image/jpeg", 0.85).split(",")[1];
+          resolve(b64);
+        } catch (e) { reject(e); }
+      };
+      img.onerror = () => reject(new Error("圖片載入失敗"));
+      img.src = dataUrl;
+    });
+  }
+
+  function renderTranslationOverlays(groups, cropOrigin, viewportRect){
+    // OCR 座標以原圖 pixel 為基準；捕獲影像 = CSS px × DPR
+    // 所以 OCR 座標直接除以 DPR 才會對到 CSS px（相對裁切區左上角）
+    const dpr = window.devicePixelRatio || 1;
+
+    for (const g of groups) {
+      const overlay = document.createElement("div");
+      overlay.className = "tt-trans-overlay";
+
+      // 若 group 無座標（fallback 整段情況）→ 置中浮動
+      if (g.left == null) {
+        overlay.classList.add("tt-trans-floating");
+        overlay.style.position = "fixed";
+        overlay.style.top  = "50%";
+        overlay.style.left = "50%";
+      } else {
+        const cssLeft = cropOrigin.pageX + (g.left   / dpr);
+        const cssTop  = cropOrigin.pageY + (g.top    / dpr);
+        const cssW    = Math.max(40, g.width  / dpr);
+        const cssH    = Math.max(24, g.height / dpr);
+        overlay.style.left   = `${cssLeft}px`;
+        overlay.style.top    = `${cssTop}px`;
+        overlay.style.width  = `${cssW}px`;
+        overlay.style.height = `${cssH}px`;
+      }
+
+      const text = document.createElement("span");
+      text.className = "tt-trans-text";
+      text.textContent = g.translatedText || g.text || "";
+      overlay.appendChild(text);
+
+      const closeBtn = document.createElement("div");
+      closeBtn.className = "tt-trans-close";
+      closeBtn.textContent = "✕";
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        overlay.remove();
+        state.translationOverlays = state.translationOverlays.filter(n => n !== overlay);
+      });
+      overlay.appendChild(closeBtn);
+
+      shadow.appendChild(overlay);
+      state.translationOverlays.push(overlay);
+
+      // 自動縮字：從 20px 往下縮到剛好塞進框（最小 10px）
+      if (g.left != null) fitFontSize(text, overlay, 20, 10);
+    }
+
+    state.scrollAccumSinceOverlay = 0;
+    state.lastScrollY = window.scrollY;
+  }
+
+  function fitFontSize(textEl, containerEl, startSize, minSize){
+    let size = startSize;
+    textEl.style.fontSize = `${size}px`;
+    while (size > minSize &&
+           (textEl.scrollHeight > containerEl.clientHeight ||
+            textEl.scrollWidth  > containerEl.clientWidth)) {
+      size -= 1;
+      textEl.style.fontSize = `${size}px`;
+    }
+  }
+
+  function clearTranslationOverlays(){
+    for (const n of state.translationOverlays) n.remove();
+    state.translationOverlays = [];
+    state.scrollAccumSinceOverlay = 0;
+  }
+
+  // ---- 暫時性浮動覆蓋（用來顯示載入中/錯誤提示，成功時移除）
+  function showFloatingOverlay(msg){
+    clearFloatingOverlay();
+    const overlay = document.createElement("div");
+    overlay.className = "tt-trans-overlay tt-trans-floating tt-floating-status";
+    overlay.textContent = msg;
+    shadow.appendChild(overlay);
+    state._floatingStatus = overlay;
+  }
+  function replaceFloatingOverlay(msg){
+    if (state._floatingStatus) {
+      state._floatingStatus.textContent = msg;
+      // 3 秒後自動消失
+      clearTimeout(state._floatingTimer);
+      state._floatingTimer = setTimeout(clearFloatingOverlay, 3000);
+    } else {
+      showToast(msg);
+    }
+  }
+  function clearFloatingOverlay(){
+    if (state._floatingStatus) {
+      state._floatingStatus.remove();
+      state._floatingStatus = null;
+    }
+    clearTimeout(state._floatingTimer);
+  }
+
+  // ---- Toast（簡短提示）
+  function showToast(msg){
+    let el = shadow.querySelector(".tt-toast");
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "tt-toast";
+      shadow.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(state.toastTimer);
+    state.toastTimer = setTimeout(() => el.classList.remove("show"), 2500);
+  }
+
+  // ---- Promise 包裝 sendMessage
+  function sendMessage(msg){
+    return new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage(msg, (resp) => {
+        if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
+        else resolve(resp);
+      });
+    });
+  }
 })();
