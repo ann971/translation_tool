@@ -586,8 +586,9 @@
           canvas.height = sh;
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
-          const b64 = canvas.toDataURL("image/jpeg", 0.85).split(",")[1];
-          resolve(b64);
+          // OCR.space 要求完整 data URL 格式（data:image/jpeg;base64,...），不可只傳純 base64
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          resolve(dataUrl);
         } catch (e) { reject(e); }
       };
       img.onerror = () => reject(new Error("圖片載入失敗"));
