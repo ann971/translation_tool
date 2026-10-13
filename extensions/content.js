@@ -335,14 +335,27 @@
     }
 
     let done = false;
+
+    // 2 秒後若還沒回應，先確認背景程式是否活著，好區分「背景沒啟動」與「翻譯太久」
+    const probe = setTimeout(()=>{
+      if (done) return;
+      chrome.runtime.sendMessage({ type:"PING" }, (pong) => {
+        if (done) return;
+        if (chrome.runtime.lastError || !pong?.ok) {
+          done = true; clearTimeout(timeout);
+          setBody(`❌ 背景程式沒有啟動：${chrome.runtime.lastError?.message || "無回應"}\n請到 chrome://extensions 重新載入 Tooltran。`);
+        }
+      });
+    }, 2000);
+
     const timeout = setTimeout(()=>{
-      if(!done) setBody("❌ 逾時：背景程式未回應，請檢查 API Key 或重新整理分頁。");
-    }, 8000);
+      if(!done) setBody("❌ 翻譯逾時：背景程式有回應，但 25 秒內沒拿到結果。請開啟 Service Worker 的 Console 查看紅字錯誤。");
+    }, 25000);
 
     chrome.runtime.sendMessage(
       { type:"TRANSLATE_REQUEST", text: state.selectionText },
       (resp) => {
-        done = true; clearTimeout(timeout);
+        done = true; clearTimeout(timeout); clearTimeout(probe);
 
         if (chrome.runtime.lastError) {
           setBody(`❌ 傳訊失敗：${chrome.runtime.lastError.message}`);

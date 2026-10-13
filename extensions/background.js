@@ -39,6 +39,14 @@ async function dispatchStartCropping(tabId) {
 
 // content 要設定值時，統一由 background 讀 storage
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("[Tooltran] 收到訊息：", message?.type);
+
+  // 連線測試：確認 service worker 已啟動且能回應
+  if (message?.type === "PING") {
+    sendResponse({ ok: true, result: "pong" });
+    return true;
+  }
+
   if (message?.type === "GET_SETTINGS") {
     (async () => {
       const cfg = await chrome.storage.sync.get({
@@ -55,8 +63,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message?.type === "TRANSLATE_REQUEST") {
     handleTranslate(message.text)
-      .then(result => sendResponse({ ok: true, result }))
-      .catch(err => sendResponse({ ok: false, error: { message: err.message }}));
+      .then(result => {
+        console.log("[Tooltran] 翻譯完成", result);
+        sendResponse({ ok: true, result });
+      })
+      .catch(err => {
+        console.error("[Tooltran] 翻譯失敗：", err);
+        sendResponse({ ok: false, error: { message: err.message }});
+      });
     return true;
   }
 
@@ -84,6 +98,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // =================== 主要入口 ===================
 
+// 短期快取：同一段文字重複選取時直接回傳，不再打 API
+const translateCache = new Map();
+const CACHE_TTL_MS = 10 * 60 * 1000;
+const CACHE_MAX_ENTRIES = 200;
+
 async function handleTranslate(text) {
   const { deeplApiKey = "", useDeepLPro = false, targetLang = "ZH-HANT" } = await chrome.storage.sync.get({
     deeplApiKey: "",
@@ -92,10 +111,24 @@ async function handleTranslate(text) {
   });
   if (!deeplApiKey) throw new Error("尚未設定 DeepL API Key。");
 
-  if (isSingleWord(text)) {
-    return handleWordTranslate(text, deeplApiKey, useDeepLPro, targetLang);
+  const cacheKey = `${targetLang}|${useDeepLPro}|${text}`;
+  const cached = translateCache.get(cacheKey);
+  if (cached && (performance.now() - cached.at) < CACHE_TTL_MS) {
+    console.log("[Tooltran] 命中快取");
+    return cached.value;
   }
-  return handleSentenceTranslate(text, deeplApiKey, useDeepLPro, targetLang);
+
+  const started = performance.now();
+  const value = isSingleWord(text)
+    ? await handleWordTranslate(text, deeplApiKey, useDeepLPro, targetLang)
+    : await handleSentenceTranslate(text, deeplApiKey, useDeepLPro, targetLang);
+  console.log(`[Tooltran] 翻譯耗時 ${Math.round(performance.now() - started)} ms`);
+
+  if (translateCache.size >= CACHE_MAX_ENTRIES) {
+    translateCache.delete(translateCache.keys().next().value);
+  }
+  translateCache.set(cacheKey, { value, at: performance.now() });
+  return value;
 }
 
 // =================== 單字判斷 ===================
@@ -190,31 +223,39 @@ const DICT_LANG_MAP = {
 };
 
 async function fetchDictionary(word) {
-  // 依序嘗試：英文 → 其他可能語言（根據字元特徵）
   const langsToTry = guessDictLangs(word);
+  // 字典服務不支援的語言（如中文）直接跳過，不要白白等待
+  if (!langsToTry.length) return null;
 
-  for (const lang of langsToTry) {
-    try {
-      const res = await fetch(`${DICT_ENDPOINT}/${lang}/${encodeURIComponent(word)}`);
-      if (!res.ok) continue;
-      const data = await res.json();
-      if (!Array.isArray(data) || !data.length) continue;
+  // 所有候選語言同時查，取優先序最前的有效結果
+  const results = await Promise.all(langsToTry.map(lang => lookupDictLang(word, lang)));
+  return results.find(Boolean) || null;
+}
 
-      const meanings = [];
-      const phonetic = data[0]?.phonetic || data[0]?.phonetics?.find(p => p.text)?.text || "";
-      for (const entry of data) {
-        for (const m of entry.meanings || []) meanings.push(m);
-      }
-      if (!meanings.length) continue;
-      return { phonetic, meanings };
-    } catch { /* 略過，繼續下一語言 */ }
+async function lookupDictLang(word, lang) {
+  try {
+    const res = await fetchWithTimeout(`${DICT_ENDPOINT}/${lang}/${encodeURIComponent(word)}`, {}, 4000);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) return null;
+
+    const meanings = [];
+    const phonetic = data[0]?.phonetic || data[0]?.phonetics?.find(p => p.text)?.text || "";
+    for (const entry of data) {
+      for (const m of entry.meanings || []) meanings.push(m);
+    }
+    if (!meanings.length) return null;
+    return { phonetic, meanings };
+  } catch {
+    return null;
   }
-  return null;
 }
 
 function guessDictLangs(word) {
   // 日文假名/漢字混合
   if (/[\u3040-\u309F\u30A0-\u30FF]/.test(word)) return ["ja"];
+  // 純漢字（中文，或不含假名的日文詞）→ 字典服務查不到且不會回應，直接跳過
+  if (/[\u4E00-\u9FFF\u3400-\u4DBF]/.test(word)) return [];
   // 韓文
   if (/[\uAC00-\uD7AF\u1100-\u11FF]/.test(word)) return ["ko"];
   // 阿拉伯文
@@ -276,26 +317,45 @@ function toTraditionalFallback(s) {
   return s.replace(/./g, ch => map[ch] || ch);
 }
 
+// 每次對外請求的最長等待時間，避免服務無回應時整個卡住
+const FETCH_TIMEOUT_MS = 10000;
+
+async function fetchWithTimeout(url, init = {}, ms = FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (err) {
+    if (err?.name === "AbortError") {
+      const host = (() => { try { return new URL(url).host; } catch { return url; } })();
+      throw new Error(`連線逾時：${host} 超過 ${ms / 1000} 秒沒有回應`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function fetchWithRetry(url, init, retries = 2) {
+  const RETRYABLE = [429, 456, 500, 502, 503, 504];
   let attempt = 0;
   while (true) {
     try {
-      const res = await fetch(url, init);
+      const res = await fetchWithTimeout(url, init);
       if (!res.ok) {
-        if ([429, 456, 500, 502, 503, 504].includes(res.status) && attempt < retries) {
+        if (RETRYABLE.includes(res.status) && attempt < retries) {
           await delay(500 * Math.pow(2, attempt));
           attempt++; continue;
         }
         const text = await res.text();
-        throw new Error(`DeepL 回應錯誤（${res.status}）: ${text}`);
+        throw new Error(`DeepL 回應錯誤（${res.status}）: ${text.slice(0, 200)}`);
       }
       return res;
     } catch (err) {
-      if (attempt < retries) {
-        await delay(500 * Math.pow(2, attempt));
-        attempt++; continue;
-      }
-      throw err;
+      // DeepL 已明確回覆的錯誤（如 403 金鑰無效）重試也沒用，直接拋出
+      if (err.message?.startsWith("DeepL 回應錯誤") || attempt >= retries) throw err;
+      await delay(500 * Math.pow(2, attempt));
+      attempt++;
     }
   }
 }
@@ -312,7 +372,7 @@ async function callOcrSpace(base64Image, apiKey, language, engine) {
   formData.append("OCREngine", engine);
   formData.append("isOverlayRequired", "true");
 
-  const resp = await fetch(OCR_ENDPOINT, { method: "POST", body: formData });
+  const resp = await fetchWithTimeout(OCR_ENDPOINT, { method: "POST", body: formData }, 30000);
   if (!resp.ok) throw new Error(`OCR.space 回應錯誤（${resp.status}）`);
   return await resp.json();
 }
